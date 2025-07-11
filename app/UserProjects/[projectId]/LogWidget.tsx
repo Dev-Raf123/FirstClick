@@ -2,14 +2,23 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
+// Define the PageVisit type
+interface PageVisit {
+  id: string;
+  url?: string;
+  timestamp: string;
+  user_agent?: string;
+  referrer?: string | null;
+}
+
 export default function LogWidget({ projectId }: { projectId: string }) {
-  const [logs, setLogs] = useState<any[]>([]);
+  const [logs, setLogs] = useState<PageVisit[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchLogs() {
       const supabase = createClient();
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("page_visits")
         .select("id, url, timestamp, user_agent, referrer")
         .eq("project_id", projectId)

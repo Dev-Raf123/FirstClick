@@ -25,7 +25,7 @@ export default function DevicesPieChart({ projectId }: { projectId: string }) {
         .eq("project_id", projectId);
 
       const counts: Record<string, number> = {};
-      data?.forEach((row: any) => {
+      data?.forEach((row: { user_agent?: string }) => {
         const category = categorizeDevice(row.user_agent || "");
         counts[category] = (counts[category] || 0) + 1;
       });

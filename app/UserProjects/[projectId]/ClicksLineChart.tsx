@@ -18,8 +18,8 @@ export default function ClicksLineChart({ projectId }: { projectId: string }) {
 
       // Group by day
       const dayMap: Record<string, number> = {};
-      data?.forEach((row: any) => {
-        const day = (row.created_at || row.timestamp)?.slice(0, 10); // fallback if your field is named 'timestamp'
+      data?.forEach((row: { created_at?: string; timestamp?: string }) => {
+        const day = (row.created_at || row.timestamp)?.slice(0, 10);
         if (day) dayMap[day] = (dayMap[day] || 0) + 1;
       });
       const chartData = Object.entries(dayMap)
