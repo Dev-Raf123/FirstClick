@@ -14,7 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { MousePointer2 } from "lucide-react";
 
 export function LoginForm({
   className,
@@ -25,6 +26,34 @@ export function LoginForm({
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  // Custom cursor state
+  const [cursor, setCursor] = useState({ x: 0, y: 0 });
+  const [isPressable, setIsPressable] = useState(false);
+
+  useEffect(() => {
+    const move = (e: MouseEvent) => {
+      setCursor({ x: e.clientX, y: e.clientY });
+
+      // Detect if the element under the cursor is pressable
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      if (
+        el &&
+        (
+          el.tagName === "BUTTON" ||
+          el.tagName === "A" ||
+          el.getAttribute("role") === "button" ||
+          el.getAttribute("tabindex") === "0"
+        )
+      ) {
+        setIsPressable(true);
+      } else {
+        setIsPressable(false);
+      }
+    };
+    window.addEventListener("mousemove", move);
+    return () => window.removeEventListener("mousemove", move);
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,8 +67,7 @@ export function LoginForm({
         password,
       });
       if (error) throw error;
-      // Update this route to redirect to an authenticated route. The user already has an active session.
-      router.push("/protected");
+      router.push("/dashboard");
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
@@ -48,10 +76,27 @@ export function LoginForm({
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn("flex flex-col gap-6 relative cursor-none", className)} {...props}>
+      {/* Custom cursor */}
+      <div
+        style={{
+          left: cursor.x,
+          top: cursor.y,
+          pointerEvents: "none",
+          position: "fixed",
+          zIndex: 50,
+          transform: "translate(-50%, -50%)",
+        }}
+      >
+        <MousePointer2
+          className={`w-6 h-6 drop-shadow-lg transition-colors duration-150 ${
+            isPressable ? "text-indigo-400" : "text-white"
+          }`}
+        />
+      </div>
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardTitle className="text-2xl">Sign in</CardTitle>
           <CardDescription>
             Enter your email below to login to your account
           </CardDescription>

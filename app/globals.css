@@ -66,3 +66,18 @@
     @apply bg-background text-foreground;
   }
 }
+
+body, * {
+  cursor: none !important;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px);}
+  50% { transform: translateY(-18px);}
+  100% { transform: translateY(0px);}
+}
+.float-animate {
+  animation: float 3s ease-in-out infinite;
+}
+
+
