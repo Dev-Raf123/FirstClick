@@ -268,15 +268,12 @@ const nodeTypes: NodeTypes = {
 
 export default function UserProjectsPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = use(params);
-  const [flowData, setFlowData] = useState<{ nodes: any[]; edges: any[]; nodeColorMap?: Map<string, string>; orderedNodes?: string[] }>({ nodes: [], edges: [], nodeColorMap: undefined, orderedNodes: undefined });
+  const [flowData, setFlowData] = useState<{ nodes: FlowNode[]; edges: FlowEdge[]; nodeColorMap?: Map<string, string>; orderedNodes?: string[] }>({ nodes: [], edges: [] });
   const [loading, setLoading] = useState(true);
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
-  const [mousePos, setMousePos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const [nodes, setNodes] = useState<any[]>([]);
-  const [edges, setEdges] = useState<any[]>([]);
+  const [nodes, setNodes] = useState<FlowNode[]>([]);
+  const [edges, setEdges] = useState<FlowEdge[]>([]);
   const [clickCount, setClickCount] = useState(0);
-  const [showGraph, setShowGraph] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
   const [heatmapUrl, setHeatmapUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -324,9 +321,8 @@ export default function UserProjectsPage({ params }: { params: Promise<{ project
           draggable
           onDragStart={e => {
             e.dataTransfer.setData("widget", "clicks-graph");
-            setIsDragging(true);
           }}
-          onDragEnd={() => setIsDragging(false)}
+          onDragEnd={() => {}}
           className="flex items-center border border-indigo-500 rounded px-3 py-1 cursor-grab bg-neutral-800"
         >
           <svg width="20" height="20" fill="none"><circle cx="10" cy="10" r="8" stroke="#6366f1" strokeWidth="2"/><path d="M5 13L9 9L13 11L15 7" stroke="#6366f1" strokeWidth="2" strokeLinecap="round"/></svg>
@@ -336,9 +332,8 @@ export default function UserProjectsPage({ params }: { params: Promise<{ project
           draggable
           onDragStart={e => {
             e.dataTransfer.setData("widget", "devices-pie");
-            setIsDragging(true);
           }}
-          onDragEnd={() => setIsDragging(false)}
+          onDragEnd={() => {}}
           className="flex items-center border border-indigo-500 rounded px-3 py-1 cursor-grab bg-neutral-800 ml-4"
         >
           <svg width="20" height="20" fill="none"><circle cx="10" cy="10" r="8" stroke="#10b981" strokeWidth="2"/><path d="M10 6v4l3 2" stroke="#10b981" strokeWidth="2" strokeLinecap="round"/></svg>
@@ -348,9 +343,8 @@ export default function UserProjectsPage({ params }: { params: Promise<{ project
           draggable
           onDragStart={e => {
             e.dataTransfer.setData("widget", "log-widget");
-            setIsDragging(true);
           }}
-          onDragEnd={() => setIsDragging(false)}
+          onDragEnd={() => {}}
           className="flex items-center border border-indigo-500 rounded px-3 py-1 cursor-grab bg-neutral-800 ml-4"
         >
           <svg width="20" height="20" fill="none"><rect x="3" y="6" width="14" height="2" rx="1" fill="#6366f1"/><rect x="3" y="10" width="14" height="2" rx="1" fill="#6366f1"/><rect x="3" y="14" width="14" height="2" rx="1" fill="#6366f1"/></svg>
@@ -461,7 +455,6 @@ export default function UserProjectsPage({ params }: { params: Promise<{ project
                   },
                 ]);
               }
-              setIsDragging(false);
             }}
             onDragOver={e => e.preventDefault()}
           >
@@ -599,4 +592,19 @@ function HeatmapModal({ url, projectId, onClose }: { url: string, projectId: str
       </div>
     </div>
   );
+}
+
+interface FlowNode {
+  id: string;
+  type?: string;
+  position: { x: number; y: number };
+  data: { [key: string]: unknown };
+  draggable?: boolean;
+}
+interface FlowEdge {
+  id: string;
+  source: string;
+  target: string;
+  animated?: boolean;
+  style?: React.CSSProperties;
 }
