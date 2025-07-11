@@ -1,12 +1,10 @@
 "use client";
 import React, { useEffect, useState, use, } from "react";
-import ReactFlow, { Background, Controls, applyNodeChanges, NodeTypes } from "reactflow";
+import ReactFlow, { Background, Controls, applyNodeChanges } from "reactflow";
 import "reactflow/dist/style.css";
 import { createClient } from "@/lib/supabase/client";
 import { CustomCursor } from "@/components/custom-cursor";
-import ClicksLineChart from "./ClicksLineChart";
-import DevicesPieChart from "./DevicesPieChart";
-import LogWidget from "./LogWidget";
+import { nodeTypes } from "./CustomNodes";
 
 
 function getColor(index: number) {
@@ -169,102 +167,7 @@ function buildFlowNodesAndEdges(
   return { nodes, edges, nodeColorMap, orderedNodes };
 }
 
-// Pass onRemoveNode as a prop from ReactFlow's nodeTypes
-export const ClicksGraphNode = React.memo(function ClicksGraphNode({ id, data }: { id: string, data: { projectId: string, onRemoveNode: (id: string) => void } }) {
-  return (
-    <div style={{ width: 480, maxWidth: 480, position: "relative" }}>
-      <button
-        style={{
-          position: "absolute",
-          top: 4,
-          right: 4,
-          background: "rgba(30,30,30,0.7)",
-          color: "#fff",
-          border: "none",
-          borderRadius: "50%",
-          width: 36,         // Increased size
-          height: 36,        // Increased size
-          fontSize: 28,      // Bigger X
-          fontWeight: "bold",
-          cursor: "pointer",
-          zIndex: 10,
-          lineHeight: "32px", // Center the X
-          textAlign: "center",
-          padding: 0,
-        }}
-        onClick={() => data.onRemoveNode(id)}
-        title="Remove widget"
-      >×</button>
-      <ClicksLineChart projectId={data.projectId} />
-    </div>
-  );
-});
-
-export const DevicesPieNode = React.memo(function DevicesPieNode({ id, data }: { id: string, data: { projectId: string, onRemoveNode: (id: string) => void } }) {
-  return (
-    <div style={{ width: 320, maxWidth: 320, position: "relative" }}>
-      <button
-        style={{
-          position: "absolute",
-          top: 4,
-          right: 4,
-          background: "rgba(30,30,30,0.7)",
-          color: "#fff",
-          border: "none",
-          borderRadius: "50%",
-          width: 36,         // Increased size
-          height: 36,        // Increased size
-          fontSize: 28,      // Bigger X
-          fontWeight: "bold",
-          cursor: "pointer",
-          zIndex: 10,
-          lineHeight: "32px", // Center the X
-          textAlign: "center",
-          padding: 0,
-        }}
-        onClick={() => data.onRemoveNode(id)}
-        title="Remove widget"
-      >×</button>
-      <DevicesPieChart projectId={data.projectId} />
-    </div>
-  );
-});
-
-export const LogWidgetNode = React.memo(function LogWidgetNode({ id, data }: { id: string, data: { projectId: string, onRemoveNode: (id: string) => void } }) {
-  return (
-    <div style={{ width: 600, maxWidth: 600, position: "relative" }}>
-      <button
-        style={{
-          position: "absolute",
-          top: 4,
-          right: 4,
-          background: "rgba(30,30,30,0.7)",
-          color: "#fff",
-          border: "none",
-          borderRadius: "50%",
-          width: 36,
-          height: 36,
-          fontSize: 28,
-          fontWeight: "bold",
-          cursor: "pointer",
-          zIndex: 10,
-          lineHeight: "32px",
-          textAlign: "center",
-          padding: 0,
-        }}
-        onClick={() => data.onRemoveNode(id)}
-        title="Remove widget"
-      >×</button>
-      <LogWidget projectId={data.projectId} />
-    </div>
-  );
-});
-
-const nodeTypes: NodeTypes = {
-  "clicks-graph": ClicksGraphNode,
-  "devices-pie": DevicesPieNode,
-  "log-widget": LogWidgetNode,
-};
+// ...existing code...
 
 export default function UserProjectsPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = use(params);
