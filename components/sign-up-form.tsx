@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { MousePointer2 } from "lucide-react";
+
 
 export function SignUpForm({
   className,
@@ -27,34 +27,6 @@ export function SignUpForm({
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-
-  // Custom cursor state
-    const [cursor, setCursor] = useState({ x: 0, y: 0 });
-    const [isPressable, setIsPressable] = useState(false);
-  
-    useEffect(() => {
-      const move = (e: MouseEvent) => {
-        setCursor({ x: e.clientX, y: e.clientY });
-  
-        // Detect if the element under the cursor is pressable
-        const el = document.elementFromPoint(e.clientX, e.clientY);
-        if (
-          el &&
-          (
-            el.tagName === "BUTTON" ||
-            el.tagName === "A" ||
-            el.getAttribute("role") === "button" ||
-            el.getAttribute("tabindex") === "0"
-          )
-        ) {
-          setIsPressable(true);
-        } else {
-          setIsPressable(false);
-        }
-      };
-      window.addEventListener("mousemove", move);
-      return () => window.removeEventListener("mousemove", move);
-    }, []);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();

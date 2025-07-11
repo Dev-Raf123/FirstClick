@@ -1,11 +1,23 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { AuthButton } from "@/components/auth-button";
 import { CustomCursor } from "@/components/custom-cursor";
-import { SnippetBox } from "./SnippetBox"; // <-- Add this import
-import { ProjectMenu } from "./ProjectMenu";
 import { ProjectList } from "./ProjectList";
+
+interface NodeType {
+  id: string;
+  type?: string;
+  position: { x: number; y: number };
+  data: any;
+  draggable?: boolean;
+}
+interface EdgeType {
+  id: string;
+  source: string;
+  target: string;
+  animated?: boolean;
+  style?: React.CSSProperties;
+}
 
 export default async function Dashboard() {
   const supabase = await createClient();

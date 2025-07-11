@@ -23,7 +23,12 @@ function SnippetModal({ open, onClose, snippet }: { open: boolean; onClose: () =
   );
 }
 
-export function ProjectList({ projects, clicksPerProject }: { projects: any[]; clicksPerProject: Record<string, number> }) {
+interface Project {
+  id: string;
+  name: string;
+  // add other fields as needed
+}
+export function ProjectList({ projects, clicksPerProject }: { projects: Project[]; clicksPerProject: Record<string, number> }) {
   const [deletedIds, setDeletedIds] = useState<string[]>([]);
   const [modalSnippet, setModalSnippet] = useState<string | null>(null);
 
