@@ -532,9 +532,14 @@ export default function UserProjectsPage({ params }: { params: Promise<{ project
     </main>
   );
 }
-
+type HeatmapPoint = {
+  click_x: number;
+  click_y: number;
+  viewport_width: number;
+  viewport_height: number;
+};
 function HeatmapModal({ url, projectId, onClose }: { url: string, projectId: string, onClose: () => void }) {
-  const [points, setPoints] = useState<any[]>([]);
+  const [points, setPoints] = useState<HeatmapPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
