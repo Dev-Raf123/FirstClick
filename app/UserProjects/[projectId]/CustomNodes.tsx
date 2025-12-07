@@ -66,7 +66,8 @@ export const DevicesPieNode = React.memo(function DevicesPieNode({ id, data }: {
 
 
 // Memoized log item component for performance
-const LogItem = React.memo(({ log, expanded, onToggle }: { log: any, expanded: boolean, onToggle: () => void }) => (
+const LogItem = React.memo(function LogItem({ log, expanded, onToggle }: { log: Record<string, unknown>, expanded: boolean, onToggle: () => void }) {
+  return (
   <li 
     style={{ background: "#27272a", borderRadius: 8, padding: 8, fontSize: 13, cursor: "pointer" }}
     onClick={(e) => {
@@ -93,7 +94,7 @@ const LogItem = React.memo(({ log, expanded, onToggle }: { log: any, expanded: b
 ));
 
 export const LogsWidgetNode = React.memo(function LogsWidgetNode({ id, data }: { id: string, data: { projectId: string, timeFilter?: string, onRemoveNode: (id: string) => void } }) {
-  const [logs, setLogs] = React.useState<any[]>([]);
+  const [logs, setLogs] = React.useState<Array<Record<string, unknown>>>([]);
   const [loading, setLoading] = React.useState(true);
   const [expandedLogId, setExpandedLogId] = React.useState<string | null>(null);
 

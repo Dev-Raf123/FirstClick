@@ -4,7 +4,6 @@ import ReactFlow, { Background, Controls, applyNodeChanges } from "reactflow";
 import "reactflow/dist/style.css";
 import { createClient } from "@/lib/supabase/client";
 import { nodeTypes } from "./CustomNodes";
-import InsightsSidebar from "./InsightsSidebar";
 
 
 function getColor(index: number) {
