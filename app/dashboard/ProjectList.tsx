@@ -2,7 +2,14 @@
 import Link from "next/link";
 import { SnippetBox } from "./SnippetBox";
 import { ProjectMenu } from "./ProjectMenu";
-import { useState } from "react";
+import { FlexCardModal } from "./FlexCardModal";
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { 
+  calculateClickPercentageChange, 
+  getTodayDateString, 
+  getYesterdayDateString 
+} from "@/lib/analytics-utils";
 
 function SnippetModal({ open, onClose, snippet }: { open: boolean; onClose: () => void; snippet: string }) {
   if (!open) return null;
@@ -26,15 +33,143 @@ function SnippetModal({ open, onClose, snippet }: { open: boolean; onClose: () =
 interface Project {
   id: string;
   name: string;
+  user_id?: string;
   // add other fields as needed
 }
-export function ProjectList({ projects, clicksPerProject }: { projects: Project[]; clicksPerProject: Record<string, number> }) {
+
+export function ProjectList({ projects: initialProjects, clicksPerProject: initialClicksPerProject }: { projects: Project[]; clicksPerProject: Record<string, number> }) {
   const [deletedIds, setDeletedIds] = useState<string[]>([]);
   const [modalSnippet, setModalSnippet] = useState<string | null>(null);
+  const [projects, setProjects] = useState<Project[]>(initialProjects);
+  const [newProjectName, setNewProjectName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [projectPercentages, setProjectPercentages] = useState<Record<string, number>>({});
+  const [clicksPerProject, setClicksPerProject] = useState<Record<string, number>>(initialClicksPerProject);
+  const [lastUpdate, setLastUpdate] = useState<number>(Date.now());
+
+  // Fetch percentage changes for all projects with real-time updates
+  useEffect(() => {
+    const supabase = createClient();
+    
+    async function fetchPercentages() {
+      if (projects.length === 0) return;
+      
+      // Calculate UTC date ranges for today and yesterday
+      const now = new Date();
+      const todayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0));
+      const todayEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 59, 999));
+      const yesterdayStart = new Date(todayStart);
+      yesterdayStart.setUTCDate(yesterdayStart.getUTCDate() - 1);
+      const yesterdayEnd = new Date(todayStart);
+      yesterdayEnd.setUTCMilliseconds(-1);
+      
+      const percentages: Record<string, number> = {};
+      const totalClicks: Record<string, number> = {};
+
+      for (const project of projects) {
+        // Get total clicks for this project
+        const { count: totalCount } = await supabase
+          .from("page_visits")
+          .select("*", { count: "exact", head: true })
+          .eq("project_id", project.id);
+
+        totalClicks[project.id] = totalCount || 0;
+
+        // Get today's count
+        const { count: todayCount } = await supabase
+          .from("page_visits")
+          .select("*", { count: "exact", head: true })
+          .eq("project_id", project.id)
+          .gte("timestamp", todayStart.toISOString())
+          .lte("timestamp", todayEnd.toISOString());
+
+        // Get yesterday's count
+        const { count: yesterdayCount } = await supabase
+          .from("page_visits")
+          .select("*", { count: "exact", head: true })
+          .eq("project_id", project.id)
+          .gte("timestamp", yesterdayStart.toISOString())
+          .lte("timestamp", yesterdayEnd.toISOString());
+
+        const clicksToday = todayCount || 0;
+        const clicksYesterday = yesterdayCount || 0;
+        const percent = calculateClickPercentageChange(clicksToday, clicksYesterday);
+        percentages[project.id] = percent;
+        
+        console.log(`[DASHBOARD] ${project.name}:`);
+        console.log(`  Total: ${totalClicks[project.id]} clicks`);
+        console.log(`  Today: ${clicksToday} clicks (${todayStart.toISOString()} to ${todayEnd.toISOString()})`);
+        console.log(`  Yesterday: ${clicksYesterday} clicks`);
+        console.log(`  Percentage: ${percent}%`);
+      }
+
+      setClicksPerProject(totalClicks);
+      setProjectPercentages(percentages);
+      setLastUpdate(Date.now());
+    }
+
+    fetchPercentages();
+
+    // Auto-refresh every 10 seconds
+    const interval = setInterval(() => {
+      console.log('[DASHBOARD] Auto-refreshing...');
+      fetchPercentages();
+    }, 10000);
+
+    // Refresh when page becomes visible (tab switching)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        console.log('[DASHBOARD] Page became visible, refetching...');
+        fetchPercentages();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Cleanup on unmount
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [projects]);
+
+  async function handleCreateProject() {
+    if (!newProjectName.trim()) return;
+    setLoading(true);
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setLoading(false);
+      alert("User not authenticated. Please log in again.");
+      return;
+    }
+    const { data, error } = await supabase
+      .from("projects")
+      .insert([{ name: newProjectName, user_id: user.id }])
+      .select()
+      .single();
+    setLoading(false);
+    if (!error && data) {
+      setProjects([data, ...projects]);
+      setNewProjectName("");
+    } else {
+      alert("Failed to create project");
+    }
+  }
 
   return (
-    <>
-      <ul>
+    <div className="border border-neutral-700 rounded-xl bg-black p-4 sm:p-6">
+      <h2 className="text-base sm:text-2xl text-white mb-4 flex items-center justify-between">
+        Projects
+        <Link href="/dashboard/createproject">
+          <button
+            className="ml-2 px-2 py-1 bg-indigo-700 text-white rounded-md text-xl hover:bg-indigo-800 transition"
+            title="Create new project"
+          >
+            +
+          </button>
+        </Link>
+      </h2>
+      <div className="grid grid-cols-1 gap-4 sm:gap-6">
         {projects?.length ? (
           projects
             .filter((project) => !deletedIds.includes(project.id))
@@ -65,86 +200,82 @@ export function ProjectList({ projects, clicksPerProject }: { projects: Project[
   });
 </script>`;
 
-              const heatmapSnippet = `<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script>
-  window.addEventListener('DOMContentLoaded', function () {
-    const SUPABASE_URL = 'https://ckhoremindgjrtmjoanw.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNraG9yZW1pbmRnanJ0bWpvYW53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA5MzY1NDksImV4cCI6MjA2NjUxMjU0OX0.aDJaxW_C3CfyU9nBu0JG5NaHIymO0c0GVsDywXNOqfE';
-    const PROJECT_ID = '${project.id}';
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    document.addEventListener('click', function (e) {
-      const payload = {
-        project_id: PROJECT_ID,
-        url: window.location.pathname,
-        click_x: e.clientX,
-        click_y: e.clientY,
-        viewport_width: window.innerWidth,
-        viewport_height: window.innerHeight,
-        user_agent: navigator.userAgent,
-        referrer: document.referrer
-      };
-      supabaseClient.from('heatmap_clicks').insert([payload])
-        .then(response => {
-          // Success
-        })
-        .catch(error => {
-          // Error
-        });
-    }, { capture: true });
-  });
-</script>`;
-
               return (
-                <li key={project.id} className="mb-6 border-b border-neutral-800 pb-4 flex items-start justify-between">
-                  <div className="flex-1">
-                    <Link
-                      href={`/UserProjects/${project.id}`}
-                      className="block p-3 rounded hover:bg-neutral-800 transition-colors"
-                    >
-                      <div className="font-semibold text-white flex items-center gap-2">
+                <div
+                  key={project.id}
+                  className="relative border border-neutral-700 bg-black rounded-xl p-4 sm:p-0 overflow-hidden"
+                >
+                  {/* ProjectMenu absolutely positioned in the top-right */}
+                  <div className="absolute top-4 right-4 z-10">
+                    <ProjectMenu
+                      onSeeSnippet={() => setModalSnippet(fullSnippet)}
+                      onDelete={async () => {
+                        if (confirm("Are you sure you want to delete this project?")) {
+                          setLoading(true);
+                          const res = await fetch("/api/delete-project", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ projectId: project.id }),
+                          });
+                          setLoading(false);
+                          if (res.ok) {
+                            setProjects(prev => prev.filter(p => p.id !== project.id));
+                            setDeletedIds(ids => [...ids, project.id]);
+                          } else {
+                            alert("Failed to delete project. Please try again.");
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+                  <Link
+                    href={`/UserProjects/${project.id}`}
+                    className="block p-4 sm:p-6 hover:bg-neutral-900 transition-colors"
+                  >
+                    <div className="flex items-center justify-between gap-4 pr-8">
+                      <div className="font-semibold text-white flex items-center gap-2 text-sm sm:text-base flex-wrap">
                         {project.name}
-                        <span className="ml-2 text-xs bg-indigo-700 text-white px-2 py-0.5 rounded">
+                        <span className="text-xs bg-indigo-700 text-white px-2.5 py-1 rounded">
                           {clicksPerProject[project.id] || 0} clicks
                         </span>
+                        {projectPercentages[project.id] !== undefined && (
+                          <span 
+                            key={`${project.id}-${lastUpdate}`}
+                            className={`text-xs font-bold px-2.5 py-1 rounded ${
+                            projectPercentages[project.id] > 0 ? 'bg-green-700 text-white' :
+                            projectPercentages[project.id] < 0 ? 'bg-red-700 text-white' :
+                            'bg-neutral-700 text-neutral-300'
+                          }`}>
+                            {projectPercentages[project.id] > 0 ? '+' : ''}{projectPercentages[project.id]}%
+                          </span>
+                        )}
                       </div>
-                      <div className="text-xs text-neutral-400 break-all">
-                        Token: <span className="font-mono">{project.id}</span>
-                      </div>
-                    </Link>
+                      {projectPercentages[project.id] > 0 && (
+                        <div onClick={(e) => e.preventDefault()} className="flex-shrink-0">
+                          <FlexCardModal projectId={project.id} projectName={project.name} />
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-xs text-neutral-400 break-all mt-3">
+                      Token: <span className="font-mono">{project.id}</span>
+                    </div>
+                  </Link>
+                  <div className="px-0 sm:px-6 pb-4">
                     {/* Tracking Snippet */}
                     <SnippetBox projectId={project.id} />
                   </div>
-                  <ProjectMenu
-                    onSeeSnippet={() => {
-                      setModalSnippet(fullSnippet);
-                    }}
-                    onSeeHeatmapSnippet={() => {
-                      setModalSnippet(heatmapSnippet);
-                    }}
-                    onDelete={async () => {
-                      if (confirm("Are you sure you want to delete this project?")) {
-                        setDeletedIds(ids => [...ids, project.id]);
-                        await fetch("/api/delete-project", {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ projectId: project.id }),
-                        });
-                      }
-                    }}
-                  />
-                </li>
+                </div>
               );
             })
         ) : (
-          <li className="text-neutral-400">No projects yet. Create one above!</li>
+          <div className="text-neutral-400">No projects yet. Create one above!</div>
         )}
-      </ul>
+      </div>
       <SnippetModal
         open={!!modalSnippet}
         onClose={() => setModalSnippet(null)}
         snippet={modalSnippet || ""}
       />
-    </>
+    </div>
   );
 }

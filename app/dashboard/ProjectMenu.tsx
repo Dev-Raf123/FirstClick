@@ -3,11 +3,9 @@ import { useState, useRef, useEffect } from "react";
 
 export function ProjectMenu({
   onSeeSnippet,
-  onSeeHeatmapSnippet,
   onDelete,
 }: {
   onSeeSnippet: () => void;
-  onSeeHeatmapSnippet: () => void;
   onDelete: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -54,15 +52,6 @@ export function ProjectMenu({
             }}
           >
             See full snippet
-          </button>
-          <button
-            className="block w-full text-left px-4 py-2 hover:bg-neutral-700 text-white"
-            onClick={() => {
-              setOpen(false);
-              onSeeHeatmapSnippet();
-            }}
-          >
-            See full snippet for Heatmaps
           </button>
           <button
             className="block w-full text-left px-4 py-2 hover:bg-red-600 hover:text-white text-red-400"

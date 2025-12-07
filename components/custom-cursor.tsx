@@ -5,8 +5,11 @@ import { MousePointer2 } from "lucide-react";
 export function CustomCursor() {
   const [cursor, setCursor] = useState({ x: 0, y: 0 });
   const [isPressable, setIsPressable] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
+    
     const move = (e: MouseEvent) => {
       setCursor({ x: e.clientX, y: e.clientY });
       const el = document.elementFromPoint(e.clientX, e.clientY);
@@ -28,6 +31,10 @@ export function CustomCursor() {
     return () => window.removeEventListener("mousemove", move);
   }, []);
 
+  if (!isMounted) {
+    return null;
+  }
+
   return (
     <div
       style={{
@@ -35,7 +42,7 @@ export function CustomCursor() {
         top: cursor.y,
         pointerEvents: "none",
         position: "fixed",
-        zIndex: 50,
+        zIndex: 200,
         transform: "translate(-50%, -50%)",
       }}
     >

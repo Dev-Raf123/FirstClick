@@ -7,6 +7,8 @@ export async function updateSession(request: NextRequest) {
     request,
   });
 
+  // No special CSP headers required for payment iframes - Paddle integration removed.
+
   // If the env vars are not set, skip middleware check. You can remove this once you setup the project.
   if (!hasEnvVars) {
     return supabaseResponse;
@@ -27,6 +29,7 @@ export async function updateSession(request: NextRequest) {
           supabaseResponse = NextResponse.next({
             request,
           });
+          // No CSP header changes needed - payment integration removed.
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options),
           );

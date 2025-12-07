@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
-import { CustomCursor } from "@/components/custom-cursor";
 import "./globals.css";
+import { CustomCursor } from "@/components/custom-cursor";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -26,11 +26,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="bg-black" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.ico.png" type="image/png" />
       </head>
-      <body className={`${geistSans.className} antialiased`}>
+      <body className={`${geistSans.className} antialiased bg-black`}>
         <CustomCursor />
         <ThemeProvider
           attribute="class"

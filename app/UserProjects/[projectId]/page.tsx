@@ -1,10 +1,10 @@
 "use client";
-import React, { useEffect, useState, use, } from "react";
+import React, { useEffect, useState, use, useRef, useCallback, useMemo } from "react";
 import ReactFlow, { Background, Controls, applyNodeChanges } from "reactflow";
 import "reactflow/dist/style.css";
 import { createClient } from "@/lib/supabase/client";
-import { CustomCursor } from "@/components/custom-cursor";
 import { nodeTypes } from "./CustomNodes";
+import InsightsSidebar from "./InsightsSidebar";
 
 
 function getColor(index: number) {
@@ -63,7 +63,6 @@ function buildFlowNodesAndEdges(
   // Arrange: referrers on top, then both, then only targets
   const orderedNodes = [...onlyReferrers, ...both, ...onlyTargets];
 
-  console.log("Node IDs:", orderedNodes);
 
   // Build adjacency list for graph traversal
   const adjacency = new Map<string, string[]>();
@@ -159,15 +158,13 @@ function buildFlowNodesAndEdges(
         id: `${ref}->${target}-${idx}`, // <-- Make edge id unique
         source: ref,
         target: target,
-        animated: true,
+        animated: false,
         style: { stroke: nodeColorMap.get(ref) || "#6366f1", strokeWidth: 2 },
       };
     });
 
   return { nodes, edges, nodeColorMap, orderedNodes };
 }
-
-// ...existing code...
 
 export default function UserProjectsPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = use(params);
@@ -177,25 +174,97 @@ export default function UserProjectsPage({ params }: { params: Promise<{ project
   const [nodes, setNodes] = useState<FlowNode[]>([]);
   const [edges, setEdges] = useState<FlowEdge[]>([]);
   const [clickCount, setClickCount] = useState(0);
-  const [heatmapUrl, setHeatmapUrl] = useState<string | null>(null);
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+  const [dailyClicks, setDailyClicks] = useState<{ date: string; clicks: number }[]>([]);
+  const [clickTrend, setClickTrend] = useState<"up" | "down" | "same">("same");
+  const [clickPnL, setClickPnL] = useState<null | { value: number; sign: "+" | "-" | "" }>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [timeFilter, setTimeFilter] = useState<"today" | "lifetime">("today");
 
   useEffect(() => {
     const fetchAnalytics = async () => {
       const supabase = createClient();
 
-      const { data, error } = await supabase
+      // Get today's date for filtering
+      const today = new Date().toISOString().split('T')[0];
+
+      // Fetch total count separately (no limit)
+      let countQuery = supabase
         .from("page_visits")
-        .select("id, url, referrer, project_id")
+        .select("*", { count: "exact", head: true })
         .eq("project_id", projectId);
+      
+      if (timeFilter === "today") {
+        countQuery = countQuery.gte("timestamp", `${today}T00:00:00`);
+      }
+      
+      const { count: totalCount } = await countQuery;
+
+      setClickCount(totalCount || 0);
+
+      // Build query based on time filter
+      let query = supabase
+        .from("page_visits")
+        .select("id, url, referrer, project_id, timestamp")
+        .eq("project_id", projectId);
+      
+      if (timeFilter === "today") {
+        query = query.gte("timestamp", `${today}T00:00:00`);
+      }
+      
+      const { data, error } = await query
+        .limit(1000)
+        .order("timestamp", { ascending: false });
 
       if (error) {
         setLoading(false);
         return;
       }
 
-      setClickCount(data?.length || 0); // <-- Count clicks for this project
+      // Calculate daily clicks
+      const dayMap: Record<string, number> = {};
+      data?.forEach((row: { timestamp?: string }) => {
+        const day = row.timestamp?.slice(0, 10);
+        if (day) dayMap[day] = (dayMap[day] || 0) + 1;
+      });
+      const chartData = Object.entries(dayMap)
+        .map(([date, clicks]) => ({ date, clicks }))
+        .sort((a, b) => a.date.localeCompare(b.date));
 
+      // Calculate trend
+      let newTrend: "up" | "down" | "same" = "same";
+      if (chartData.length >= 2) {
+        const prevClicks = chartData[chartData.length - 2].clicks;
+        const currClicks = chartData[chartData.length - 1].clicks;;
+        if (currClicks > prevClicks) newTrend = "up";
+        else if (currClicks < prevClicks) newTrend = "down";
+      }
+
+      // Calculate PnL
+      let newPnL: null | { value: number; sign: "+" | "-" | "" } = null;
+      if (chartData.length >= 2) {
+        const prevClicks = chartData[chartData.length - 2].clicks;
+        const currClicks = chartData[chartData.length - 1].clicks;
+        if (prevClicks > 0) {
+          const diff = currClicks - prevClicks;
+          const percent = Math.abs((diff / prevClicks) * 100);
+          newPnL = {
+            value: Math.round(percent * 10) / 10,
+            sign: diff > 0 ? "+" : diff < 0 ? "-" : "",
+          };
+        } else {
+          newPnL = { value: 0, sign: "" };
+        }
+      }
+
+      // Build flow graph
       const built = buildFlowNodesAndEdges(data || []);
+      
+      // Batch all state updates together (React 18+ auto-batching)
+      setDailyClicks(chartData);
+      setClickTrend(newTrend);
+      setClickPnL(newPnL);
       setNodes(built.nodes);
       setEdges(built.edges);
       setFlowData(built);
@@ -203,302 +272,314 @@ export default function UserProjectsPage({ params }: { params: Promise<{ project
     };
 
     fetchAnalytics();
-  }, [projectId]);
+  }, [projectId, timeFilter]);
 
   const handleRemoveNode = (id: string) => {
     setNodes(nds => nds.filter(n => n.id !== id));
   };
 
-  return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-neutral-900 text-white cursor-none">
-      {/* Top bar with green dot and click count */}
-      <div
-        className="w-full flex items-center justify-center border-b border-neutral-700 py-3 px-6 mb-4 bg-neutral-900/80"
-        style={{ position: "absolute", top: 0, left: 0, zIndex: 20 }}
-      >
-        <span className="inline-block w-3 h-3 rounded-full bg-green-500 mr-3"></span>
-        <span className="font-semibold text-lg mr-6">
-          {clickCount} clicks
-        </span>
-        <div
-          draggable
-          onDragStart={e => {
-            e.dataTransfer.setData("widget", "clicks-graph");
-          }}
-          onDragEnd={() => {}}
-          className="flex items-center border border-indigo-500 rounded px-3 py-1 cursor-grab bg-neutral-800"
-        >
-          <svg width="20" height="20" fill="none"><circle cx="10" cy="10" r="8" stroke="#6366f1" strokeWidth="2"/><path d="M5 13L9 9L13 11L15 7" stroke="#6366f1" strokeWidth="2" strokeLinecap="round"/></svg>
-          <span className="ml-2 font-semibold text-indigo-300">Clicks Graph</span>
-        </div>
-        <div
-          draggable
-          onDragStart={e => {
-            e.dataTransfer.setData("widget", "devices-pie");
-          }}
-          onDragEnd={() => {}}
-          className="flex items-center border border-indigo-500 rounded px-3 py-1 cursor-grab bg-neutral-800 ml-4"
-        >
-          <svg width="20" height="20" fill="none"><circle cx="10" cy="10" r="8" stroke="#10b981" strokeWidth="2"/><path d="M10 6v4l3 2" stroke="#10b981" strokeWidth="2" strokeLinecap="round"/></svg>
-          <span className="ml-2 font-semibold text-green-300">Devices Pie</span>
-        </div>
-        <div
-          draggable
-          onDragStart={e => {
-            e.dataTransfer.setData("widget", "log-widget");
-          }}
-          onDragEnd={() => {}}
-          className="flex items-center border border-indigo-500 rounded px-3 py-1 cursor-grab bg-neutral-800 ml-4"
-        >
-          <svg width="20" height="20" fill="none"><rect x="3" y="6" width="14" height="2" rx="1" fill="#6366f1"/><rect x="3" y="10" width="14" height="2" rx="1" fill="#6366f1"/><rect x="3" y="14" width="14" height="2" rx="1" fill="#6366f1"/></svg>
-          <span className="ml-2 font-semibold text-indigo-300">Logs Widget</span>
-        </div>
-      </div>
-      <CustomCursor />
-      <div style={{ width: "100%", height: "600px", background: "#18181b", borderRadius: 16, position: "relative", marginTop: 56 }}>
-        {/* Legend in top left */}
-        {!loading && flowData.nodeColorMap && flowData.orderedNodes && (
-          <div
-            style={{
-              position: "absolute",
-              top: 16,
-              left: 16,
-              background: "#23232b",
-              color: "#fff",
-              padding: "12px 18px",
-              borderRadius: 8,
-              boxShadow: "0 2px 8px #0003",
-              zIndex: 10,
-              fontSize: 14,
-              minWidth: 180,
-              maxHeight: 300,
-              overflowY: "auto",
-            }}
-          >
-            <div style={{ fontWeight: "bold", marginBottom: 6 }}>Node Legend</div>
-            {flowData.orderedNodes.map((url) => (
-              <div key={url} style={{ display: "flex", alignItems: "center", marginBottom: 4 }}>
-                <span
-                  style={{
-                    display: "inline-block",
-                    width: 18,
-                    height: 4,
-                    background: flowData.nodeColorMap?.get(url),
-                    marginRight: 8,
-                    borderRadius: 2,
-                  }}
-                />
-                <span style={{ wordBreak: "break-all" }}>{url}</span>
-              </div>
-            ))}
-          </div>
-        )}
-        {loading ? (
-          <div className="flex items-center justify-center h-full">Loading...</div>
-        ) : (
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            nodeTypes={nodeTypes}
-            onNodesChange={changes => setNodes(nds => applyNodeChanges(changes, nds))}
-            fitView
-            onNodeMouseEnter={(_, node) => setHoveredNode(node.id)}
-            onNodeMouseLeave={() => setHoveredNode(null)}
-            onNodeClick={(_, node) => {
-              // Only open heatmap for URL nodes (not widgets)
-              if (
-                !node.id.startsWith("clicks-graph-") &&
-                !node.id.startsWith("devices-pie-") &&
-                !node.id.startsWith("log-widget-")
-              ) {
-                setHeatmapUrl(node.id);
-              }
-            }}
-            onDrop={e => {
-              e.preventDefault();
-              const widget = e.dataTransfer.getData("widget");
-              const bounds = e.currentTarget.getBoundingClientRect();
-              const position = {
-                x: e.clientX - bounds.left,
-                y: e.clientY - bounds.top,
-              };
-              if (widget === "clicks-graph") {
-                setNodes(nds => [
-                  ...nds,
-                  {
-                    id: `clicks-graph-${Date.now()}`,
-                    type: "clicks-graph",
-                    position,
-                    data: { projectId, onRemoveNode: handleRemoveNode },
-                    draggable: true,
-                  },
-                ]);
-              }
-              if (widget === "devices-pie") {
-                setNodes(nds => [
-                  ...nds,
-                  {
-                    id: `devices-pie-${Date.now()}`,
-                    type: "devices-pie",
-                    position,
-                    data: { projectId, onRemoveNode: handleRemoveNode },
-                    draggable: true,
-                  },
-                ]);
-              }
-              if (widget === "log-widget") {
-                setNodes(nds => [
-                  ...nds,
-                  {
-                    id: `log-widget-${Date.now()}`,
-                    type: "log-widget",
-                    position,
-                    data: { projectId, onRemoveNode: handleRemoveNode },
-                    draggable: true,
-                  },
-                ]);
-              }
-            }}
-            onDragOver={e => e.preventDefault()}
-          >
-            <Background />
-            <Controls />
-          </ReactFlow>
-        )}
-        {hoveredNode && !loading && (
-          <div
-            style={{
-              position: "fixed",
-              top: 24,
-              right: 24,
-              background: "#23232b",
-              color: "#fff",
-              padding: "10px 16px",
-              borderRadius: 8,
-              boxShadow: "0 2px 8px #0007",
-              zIndex: 1000,
-              pointerEvents: "none",
-              minWidth: 220,
-              maxWidth: 320,
-              fontSize: 13,
-            }}
-          >
-            <div style={{ fontWeight: "bold", marginBottom: 6 }}>{hoveredNode}</div>
-            {hoveredNode.startsWith("clicks-graph-") || hoveredNode.startsWith("devices-pie-") ? null : (
-              <>
-                <div>
-                  <span style={{ color: "#a3e635" }}>Users came from:</span>
-                  <ul style={{ margin: 0, paddingLeft: 16 }}>
-                    {Object.entries(
-                      flowData.edges
-                        .filter(e => e.target === hoveredNode)
-                        .reduce((acc: Record<string, number>, e) => {
-                          acc[e.source] = (acc[e.source] || 0) + 1;
-                          return acc;
-                        }, {})
-                    ).map(([source, count], idx) => (
-                      <li key={`${source}->${hoveredNode}-${count}-${idx}`}>
-                        <b>{count}</b> {source}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div style={{ marginTop: 6 }}>
-                  <span style={{ color: "#38bdf8" }}>Users went to:</span>
-                  <ul style={{ margin: 0, paddingLeft: 16 }}>
-                    {Object.entries(
-                      flowData.edges
-                        .filter(e => e.source === hoveredNode)
-                        .reduce((acc: Record<string, number>, e) => {
-                          acc[e.target] = (acc[e.target] || 0) + 1;
-                          return acc;
-                        }, {})
-                    ).map(([target, count], idx) => (
-                      <li key={`${hoveredNode}->${target}-${count}-${idx}`}>
-                        <b>{count}</b> {target}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </>
-            )}
-          </div>
-        )}
-      </div>
-      {heatmapUrl && (
-        <HeatmapModal
-          url={heatmapUrl}
-          projectId={projectId}
-          onClose={() => setHeatmapUrl(null)}
-        />
-      )}
-    </main>
-  );
-}
-type HeatmapPoint = {
-  click_x: number;
-  click_y: number;
-  viewport_width: number;
-  viewport_height: number;
-};
-function HeatmapModal({ url, projectId, onClose }: { url: string, projectId: string, onClose: () => void }) {
-  const [points, setPoints] = useState<HeatmapPoint[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Memoize tooltip data to avoid recalculating on every hover
+  const tooltipData = useMemo(() => {
+    if (!hoveredNode || !flowData.edges) return null;
+    
+    const incoming = flowData.edges
+      .filter(e => e.target === hoveredNode)
+      .reduce((acc: Record<string, number>, e) => {
+        acc[e.source] = (acc[e.source] || 0) + 1;
+        return acc;
+      }, {});
+    
+    const outgoing = flowData.edges
+      .filter(e => e.source === hoveredNode)
+      .reduce((acc: Record<string, number>, e) => {
+        acc[e.target] = (acc[e.target] || 0) + 1;
+        return acc;
+      }, {});
+    
+    return { incoming, outgoing };
+  }, [hoveredNode, flowData.edges]);
 
-  useEffect(() => {
-    async function fetchPoints() {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("heatmap_clicks")
-        .select("click_x, click_y, viewport_width, viewport_height")
-        .eq("project_id", projectId)
-        .eq("url", url);
-      setPoints(data || []);
-      setLoading(false);
+  const handleNodeMouseEnter = useCallback((event: React.MouseEvent, node: { id: string }) => {
+    if (isDragging) return;
+    setHoveredNode(node.id);
+    setTooltipPos({ x: event.clientX, y: event.clientY });
+  }, [isDragging]);
+  
+  // Throttle mouse move updates for better performance
+  const throttleTimeout = useRef<NodeJS.Timeout | null>(null);
+  const handleNodeMouseMove = useCallback((event: React.MouseEvent) => {
+    if (isDragging || throttleTimeout.current) return;
+    throttleTimeout.current = setTimeout(() => {
+      setTooltipPos({ x: event.clientX, y: event.clientY });
+      throttleTimeout.current = null;
+    }, 16); // ~60fps
+  }, [isDragging]);
+  const handleNodeMouseLeave = useCallback(() => {
+    setHoveredNode(null);
+    setTooltipPos(null);
+  }, []);
+  
+  const onNodeDragStart = useCallback(() => {
+    setIsDragging(true);
+    setHoveredNode(null);
+    setTooltipPos(null);
+  }, []);
+  
+  const onNodeDragStop = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+  const handleNodeClick = useCallback((_: React.MouseEvent, node: FlowNode) => {
+    // Click handler - functionality removed
+  }, []);
+  const handleDrop = useCallback((e: { preventDefault: () => void; dataTransfer: { getData: (arg0: string) => any; }; currentTarget: { getBoundingClientRect: () => any; }; clientX: number; clientY: number; }) => {
+    e.preventDefault();
+    const widget = e.dataTransfer.getData("widget");
+    const bounds = e.currentTarget.getBoundingClientRect();
+    const position = {
+      x: e.clientX - bounds.left,
+      y: e.clientY - bounds.top,
+    };
+    if (widget === "clicks-graph") {
+      setNodes(nds => [
+        ...nds,
+        {
+          id: `clicks-graph-${Date.now()}`,
+          type: "clicks-graph",
+          position,
+          data: { projectId, timeFilter, onRemoveNode: handleRemoveNode },
+          draggable: true,
+        },
+      ]);
     }
-    fetchPoints();
-  }, [url, projectId]);
+    if (widget === "devices-pie") {
+      setNodes(nds => [
+        ...nds,
+        {
+          id: `devices-pie-${Date.now()}`,
+          type: "devices-pie",
+          position,
+          data: { projectId, timeFilter, onRemoveNode: handleRemoveNode },
+          draggable: true,
+        },
+      ]);
+    }
+    if (widget === "logs-widget") {
+      setNodes(nds => [
+        ...nds,
+        {
+          id: `logs-widget-${Date.now()}`,
+          type: "logs-widget",
+          position,
+          data: { projectId, timeFilter, onRemoveNode: handleRemoveNode },
+          draggable: true,
+        },
+      ]);
+    }
+  }, [projectId, timeFilter]);
 
-  // Simple heatmap: just plot dots (for demo; for real heatmap use a library)
+  
+
   return (
-    <div className="fixed inset-0 z-[2000] bg-black bg-opacity-70 flex items-center justify-center">
-      <div className="relative bg-neutral-900 rounded-lg p-4 shadow-lg max-w-3xl w-full h-[80vh] flex flex-col">
-        <button
-          className="absolute top-2 right-2 text-white text-2xl"
-          onClick={onClose}
-        >×</button>
-        <h3 className="text-lg font-bold text-indigo-300 mb-2">Heatmap for {url}</h3>
-        <div className="flex-1 relative bg-neutral-800 rounded overflow-hidden">
-          {loading ? (
-            <div className="flex items-center justify-center h-full text-neutral-400">Loading...</div>
-          ) : (
-            <div style={{ width: "100%", height: "100%", position: "relative" }}>
-              {points.map((pt, i) => {
-                // Normalize to container size (assume 1000x600 for demo)
-                const x = pt.viewport_width ? (pt.click_x / pt.viewport_width) * 100 : 0;
-                const y = pt.viewport_height ? (pt.click_y / pt.viewport_height) * 100 : 0;
-                return (
-                  <div
-                    key={i}
+    <main className="h-screen flex bg-neutral-900 text-white cursor-none overflow-hidden">
+      <div className="flex-1 flex flex-row items-start justify-center relative p-6">
+        {/* Graph area */}
+        <div className="flex-1 h-full w-full relative" style={{ border: "1px solid rgba(99, 102, 241, 0.2)", borderRadius: 20, background: "linear-gradient(135deg, #18181b 0%, #0f0f12 100%)", boxShadow: "0 20px 60px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05)" }}>
+          {/* Centered widgets bar and total clicks at top */}
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-auto flex items-center gap-4 py-3 px-6 rounded-2xl backdrop-blur-xl bg-gradient-to-r from-neutral-900/95 via-neutral-900/90 to-neutral-900/95 border border-neutral-700/50 shadow-2xl z-20" style={{ minWidth: 400 }}>
+            <div className="flex items-center gap-2 px-3 py-1 rounded-xl bg-neutral-800/50 border border-neutral-700/30">
+              <button
+                onClick={() => setTimeFilter("today")}
+                className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                  timeFilter === "today" 
+                    ? "bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-500/50" 
+                    : "text-neutral-400 hover:text-white hover:bg-neutral-700/50"
+                }`}
+              >
+                Today
+              </button>
+              <button
+                onClick={() => setTimeFilter("lifetime")}
+                className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                  timeFilter === "lifetime" 
+                    ? "bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-500/50" 
+                    : "text-neutral-400 hover:text-white hover:bg-neutral-700/50"
+                }`}
+              >
+                Lifetime
+              </button>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30">
+              <svg width="20" height="20" fill="none" className="text-indigo-400"><circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="2"/><path d="M10 6v4l3 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+              <span className="font-bold text-lg text-white">{clickCount}</span>
+              <span className="text-xs text-indigo-300 font-medium">clicks</span>
+            </div>
+            <div className="w-px h-8 bg-neutral-700/50"></div>
+            <div
+              draggable
+              onDragStart={e => {
+                e.dataTransfer.setData("widget", "clicks-graph");
+              }}
+              onDragEnd={() => {}}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl cursor-grab bg-gradient-to-br from-indigo-600/20 to-indigo-700/20 border border-indigo-500/40 hover:border-indigo-400 hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-200 hover:scale-105"
+            >
+              <svg width="20" height="20" fill="none"><circle cx="10" cy="10" r="8" stroke="#6366f1" strokeWidth="2"/><path d="M5 13L9 9L13 11L15 7" stroke="#6366f1" strokeWidth="2" strokeLinecap="round"/></svg>
+              <span className="text-sm font-semibold text-indigo-300">Clicks</span>
+            </div>
+            <div
+              draggable
+              onDragStart={e => {
+                e.dataTransfer.setData("widget", "devices-pie");
+              }}
+              onDragEnd={() => {}}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl cursor-grab bg-gradient-to-br from-emerald-600/20 to-emerald-700/20 border border-emerald-500/40 hover:border-emerald-400 hover:shadow-lg hover:shadow-emerald-500/30 transition-all duration-200 hover:scale-105"
+            >
+              <svg width="20" height="20" fill="none"><circle cx="10" cy="10" r="8" stroke="#10b981" strokeWidth="2"/><path d="M10 6v4l3 2" stroke="#10b981" strokeWidth="2" strokeLinecap="round"/></svg>
+              <span className="text-sm font-semibold text-emerald-300">Devices</span>
+            </div>
+            <div
+              draggable
+              onDragStart={e => {
+                e.dataTransfer.setData("widget", "logs-widget");
+              }}
+              onDragEnd={() => {}}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl cursor-grab bg-gradient-to-br from-amber-600/20 to-amber-700/20 border border-amber-500/40 hover:border-amber-400 hover:shadow-lg hover:shadow-amber-500/30 transition-all duration-200 hover:scale-105"
+            >
+              <svg width="20" height="20" fill="none"><rect x="4" y="4" width="12" height="12" stroke="#f59e0b" strokeWidth="2" rx="2"/><line x1="7" y1="8" x2="13" y2="8" stroke="#f59e0b" strokeWidth="2"/><line x1="7" y1="12" x2="13" y2="12" stroke="#f59e0b" strokeWidth="2"/></svg>
+              <span className="text-sm font-semibold text-amber-300">Sessions</span>
+            </div>
+          </div>
+          {/* Node legend at top right */}
+          {!loading && flowData.nodeColorMap && flowData.orderedNodes && (
+            <div
+              style={{
+                position: "absolute",
+                top: 20,
+                right: 20,
+                background: "linear-gradient(135deg, rgba(30, 30, 35, 0.95) 0%, rgba(20, 20, 25, 0.98) 100%)",
+                backdropFilter: "blur(12px)",
+                color: "#fff",
+                padding: "16px 20px",
+                borderRadius: 16,
+                border: "1px solid rgba(99, 102, 241, 0.2)",
+                boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05)",
+                zIndex: 10,
+                fontSize: 13,
+                minWidth: 200,
+                maxHeight: 320,
+                overflowY: "auto",
+              }}
+            >
+              <div style={{ fontWeight: "bold", marginBottom: 12, fontSize: 15, color: "#c7d2fe" }}>Flow Legend</div>
+              {flowData.orderedNodes.map((url) => (
+                <div key={url} style={{ display: "flex", alignItems: "center", marginBottom: 8, padding: "6px 8px", borderRadius: 8, background: "rgba(255, 255, 255, 0.03)", transition: "all 0.2s" }}>
+                  <span
                     style={{
-                      position: "absolute",
-                      left: `${x}%`,
-                      top: `${y}%`,
-                      width: 16,
-                      height: 16,
-                      background: "rgba(99,102,241,0.5)",
-                      borderRadius: "50%",
-                      transform: "translate(-50%, -50%)",
-                      pointerEvents: "none",
+                      display: "inline-block",
+                      width: 20,
+                      height: 6,
+                      background: flowData.nodeColorMap?.get(url),
+                      marginRight: 10,
+                      borderRadius: 3,
+                      boxShadow: `0 0 8px ${flowData.nodeColorMap?.get(url)}40`,
                     }}
                   />
-                );
-              })}
+                  <span style={{ wordBreak: "break-all", fontSize: 12, color: "#e5e7eb" }}>{url}</span>
+                </div>
+              ))}
             </div>
+          )}
+          {loading ? (
+            <div className="flex items-center justify-center h-full">Loading...</div>
+          ) : (
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              nodeTypes={nodeTypes}
+              onNodesChange={changes => setNodes(nds => applyNodeChanges(changes, nds))}
+              onNodeDragStart={onNodeDragStart}
+              onNodeDragStop={onNodeDragStop}
+              //fitView
+              proOptions={{ hideAttribution: true }}
+              onNodeMouseEnter={handleNodeMouseEnter}
+              onNodeMouseMove={handleNodeMouseMove}
+              onNodeMouseLeave={handleNodeMouseLeave}
+              onNodeClick={handleNodeClick}
+              onDrop={handleDrop}
+              onDragOver={e => e.preventDefault()}
+              elementsSelectable={false}
+              onlyRenderVisibleElements={true}
+              nodesDraggable={true}
+              nodesConnectable={false}
+              nodesFocusable={false}
+              edgesFocusable={false}
+              panOnDrag={true}
+              panOnScroll={true}
+              zoomOnScroll={true}
+              zoomOnDoubleClick={false}
+              maxZoom={2}
+              minZoom={0.1}
+              preventScrolling={false}
+              selectNodesOnDrag={false}
+              autoPanOnNodeDrag={false}
+            >
+              <Background />
+              <Controls />
+            </ReactFlow>
+          )}
+          {hoveredNode && tooltipPos && !loading && !isDragging && (
+            // Only show tooltip for normal nodes, not widgets
+            !hoveredNode.startsWith("clicks-graph-") &&
+            !hoveredNode.startsWith("devices-pie-") &&
+            !hoveredNode.startsWith("logs-widget-") && (
+              <div
+                style={{
+                  position: "fixed",
+                  top: tooltipPos.y + 16,
+                  left: tooltipPos.x + 16,
+                  background: "#23232b",
+                  color: "#fff",
+                  padding: "10px 16px",
+                  borderRadius: 8,
+                  boxShadow: "0 2px 8px #0007",
+                  zIndex: 1000,
+                  pointerEvents: "none",
+                  minWidth: 220,
+                  maxWidth: 320,
+                  fontSize: 13,
+                }}
+                ref={tooltipRef}
+              >
+                <div style={{ fontWeight: "bold", marginBottom: 6 }}>{hoveredNode}</div>
+                {tooltipData && (
+                  <>
+                    <div>
+                      <span style={{ color: "#a3e635" }}>Users came from:</span>
+                      <ul style={{ margin: 0, paddingLeft: 16 }}>
+                        {Object.entries(tooltipData.incoming).map(([source, count], idx) => (
+                          <li key={`${source}->${hoveredNode}-${count}-${idx}`}>
+                            <b>{count}</b> {source}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div style={{ marginTop: 6 }}>
+                      <span style={{ color: "#38bdf8" }}>Users went to:</span>
+                      <ul style={{ margin: 0, paddingLeft: 16 }}>
+                        {Object.entries(tooltipData.outgoing).map(([target, count], idx) => (
+                          <li key={`${hoveredNode}->${target}-${count}-${idx}`}>
+                            <b>{count}</b> {target}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </>
+                )}
+              </div>
+            )
           )}
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 

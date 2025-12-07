@@ -24,7 +24,12 @@ export default function LogWidget({ projectId }: { projectId: string }) {
         .eq("project_id", projectId)
         .order("timestamp", { ascending: false })
         .limit(20);
-      setLogs(data || []);
+      setLogs(prev => {
+        if (JSON.stringify(prev) !== JSON.stringify(data || [])) {
+          return data || [];
+        }
+        return prev;
+      });
       setLoading(false);
     }
     fetchLogs();

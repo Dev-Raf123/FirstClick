@@ -13,16 +13,24 @@ function categorizeDevice(userAgent: string) {
   return "Other";
 }
 
-export default function DevicesPieChart({ projectId }: { projectId: string }) {
+export default function DevicesPieChart({ projectId, timeFilter }: { projectId: string, timeFilter?: string }) {
   const [data, setData] = useState<{ name: string; value: number }[]>([]);
 
   useEffect(() => {
     async function fetchData() {
       const supabase = createClient();
-      const { data } = await supabase
+      const today = new Date().toISOString().split('T')[0];
+      
+      let query = supabase
         .from("page_visits")
         .select("user_agent, project_id")
         .eq("project_id", projectId);
+      
+      if (timeFilter === "today") {
+        query = query.gte("timestamp", `${today}T00:00:00`);
+      }
+      
+      const { data } = await query;
 
       const counts: Record<string, number> = {};
       data?.forEach((row: { user_agent?: string }) => {
@@ -38,7 +46,7 @@ export default function DevicesPieChart({ projectId }: { projectId: string }) {
       setData(chartData);
     }
     fetchData();
-  }, [projectId]);
+  }, [projectId, timeFilter]);
 
   return (
     <div className="bg-neutral-900 border border-indigo-500 rounded p-4 w-full max-w-xs">
