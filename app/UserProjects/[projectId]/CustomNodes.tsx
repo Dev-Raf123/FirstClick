@@ -66,35 +66,36 @@ export const DevicesPieNode = React.memo(function DevicesPieNode({ id, data }: {
 
 
 // Memoized log item component for performance
-const LogItem = React.memo(function LogItem({ log, expanded, onToggle }: { log: Record<string, unknown>, expanded: boolean, onToggle: () => void }) {
+const LogItem = React.memo(function LogItem({ log, expanded, onToggle }: { log: any, expanded: boolean, onToggle: () => void }) {
   return (
-  <li 
-    style={{ background: "#27272a", borderRadius: 8, padding: 8, fontSize: 13, cursor: "pointer" }}
-    onClick={(e) => {
-      e.stopPropagation();
-      onToggle();
-    }}
-  >
-    <div>
-      <span style={{ fontWeight: 600, color: "#c7d2fe" }}>{log.url}</span>
-      <span style={{ marginLeft: 8, color: "#a3a3a3", fontSize: 11 }}>{log.timestamp?.slice(0, 19).replace("T", " ")}</span>
-    </div>
-    <div style={{ color: "#a3a3a3", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 11 }}>{log.user_agent}</div>
-    <div style={{ color: "#737373", fontSize: 10 }}>Referrer: {log.referrer || "Direct"}</div>
-    {expanded && (
-      <div style={{ marginTop: 8, fontSize: 11, color: "#d4d4d8", display: "flex", flexDirection: "column", gap: 4 }}>
-        {Object.entries(log).map(([key, value]) => (
-          <div key={key} style={{ wordBreak: "break-all" }}>
-            <span style={{ fontWeight: "bold", color: "#a78bfa" }}>{key}:</span> {String(value)}
-          </div>
-        ))}
+    <li 
+      style={{ background: "#27272a", borderRadius: 8, padding: 8, fontSize: 13, cursor: "pointer" }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onToggle();
+      }}
+    >
+      <div>
+        <span style={{ fontWeight: 600, color: "#c7d2fe" }}>{log.url}</span>
+        <span style={{ marginLeft: 8, color: "#a3a3a3", fontSize: 11 }}>{log.timestamp?.slice(0, 19).replace("T", " ")}</span>
       </div>
-    )}
-  </li>
-));
+      <div style={{ color: "#a3a3a3", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 11 }}>{log.user_agent}</div>
+      <div style={{ color: "#737373", fontSize: 10 }}>Referrer: {log.referrer || "Direct"}</div>
+      {expanded && (
+        <div style={{ marginTop: 8, fontSize: 11, color: "#d4d4d8", display: "flex", flexDirection: "column", gap: 4 }}>
+          {Object.entries(log).map(([key, value]) => (
+            <div key={key} style={{ wordBreak: "break-all" }}>
+              <span style={{ fontWeight: "bold", color: "#a78bfa" }}>{key}:</span> {String(value)}
+            </div>
+          ))}
+        </div>
+      )}
+    </li>
+  );
+});
 
 export const LogsWidgetNode = React.memo(function LogsWidgetNode({ id, data }: { id: string, data: { projectId: string, timeFilter?: string, onRemoveNode: (id: string) => void } }) {
-  const [logs, setLogs] = React.useState<Array<Record<string, unknown>>>([]);
+  const [logs, setLogs] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [expandedLogId, setExpandedLogId] = React.useState<string | null>(null);
 
