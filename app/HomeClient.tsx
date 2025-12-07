@@ -243,25 +243,6 @@ export default function HomeClient() {
         </div>
       </section>
 
-      {/* User Flow Section */}
-      <section className="w-full max-w-5xl mx-auto text-center py-24">
-        <h2 className="text-5xl font-extrabold text-white mb-6">Track User Journeys</h2>
-        <p className="text-xl text-neutral-300 mb-12 max-w-3xl mx-auto">
-          Understand how users navigate your project with detailed flow charts and insights. Graphs, sessions, and devices all in one workplace. Just drag and drop!
-        </p>
-        <div className="flex justify-center">
-          <Image
-            src="/Dashboard.png"
-            alt="User Flow Chart Screenshot"
-            width={950}
-            height={400}
-            className="rounded-2xl border border-neutral-800 shadow-2xl"
-            priority={false}
-            unoptimized
-          />
-        </div>
-      </section>
-
       {/* CTA Section */}
       <section className="w-full max-w-4xl mx-auto text-center py-24">
         <div className="bg-gradient-to-br from-indigo-600/20 to-purple-600/20 border border-indigo-500/30 rounded-3xl p-16 backdrop-blur relative overflow-hidden">
