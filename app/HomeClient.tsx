@@ -257,6 +257,7 @@ export default function HomeClient() {
             height={400}
             className="rounded-2xl border border-neutral-800 shadow-2xl"
             priority={false}
+            unoptimized
           />
         </div>
       </section>
