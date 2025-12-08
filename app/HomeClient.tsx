@@ -76,6 +76,199 @@ export default function HomeClient() {
         <p className="text-sm text-neutral-500">No credit card required • Cancel anytime</p>
       </section>
 
+      {/* Compatible Platforms - Infinite Scroll */}
+      <section className="w-full py-16 bg-gradient-to-b from-transparent via-neutral-900/30 to-transparent overflow-hidden">
+        <div className="max-w-6xl mx-auto text-center mb-8">
+          <p className="text-sm text-neutral-500 uppercase tracking-wider mb-4">Works with your favorite tools</p>
+        </div>
+        <div className="relative">
+          <div className="flex animate-scroll">
+            {/* First set */}
+            <div className="flex gap-12 items-center px-6 whitespace-nowrap">
+              <span className="text-3xl font-bold text-neutral-400">React</span>
+              <span className="text-3xl font-bold text-neutral-400">Next.js</span>
+              <span className="text-3xl font-bold text-neutral-400">Vue</span>
+              <span className="text-3xl font-bold text-neutral-400">Angular</span>
+              <span className="text-3xl font-bold text-neutral-400">Svelte</span>
+              <span className="text-3xl font-bold text-neutral-400">WordPress</span>
+              <span className="text-3xl font-bold text-neutral-400">Shopify</span>
+              <span className="text-3xl font-bold text-neutral-400">WooCommerce</span>
+              <span className="text-3xl font-bold text-neutral-400">Webflow</span>
+              <span className="text-3xl font-bold text-neutral-400">Wix</span>
+              <span className="text-3xl font-bold text-neutral-400">Squarespace</span>
+              <span className="text-3xl font-bold text-neutral-400">Django</span>
+              <span className="text-3xl font-bold text-neutral-400">Flask</span>
+              <span className="text-3xl font-bold text-neutral-400">Laravel</span>
+              <span className="text-3xl font-bold text-neutral-400">Ruby on Rails</span>
+              <span className="text-3xl font-bold text-neutral-400">Express</span>
+              <span className="text-3xl font-bold text-neutral-400">HTML/CSS</span>
+              <span className="text-3xl font-bold text-neutral-400">Static Sites</span>
+            </div>
+            {/* Duplicate set for seamless loop */}
+            <div className="flex gap-12 items-center px-6 whitespace-nowrap">
+              <span className="text-3xl font-bold text-neutral-400">React</span>
+              <span className="text-3xl font-bold text-neutral-400">Next.js</span>
+              <span className="text-3xl font-bold text-neutral-400">Vue</span>
+              <span className="text-3xl font-bold text-neutral-400">Angular</span>
+              <span className="text-3xl font-bold text-neutral-400">Svelte</span>
+              <span className="text-3xl font-bold text-neutral-400">WordPress</span>
+              <span className="text-3xl font-bold text-neutral-400">Shopify</span>
+              <span className="text-3xl font-bold text-neutral-400">WooCommerce</span>
+              <span className="text-3xl font-bold text-neutral-400">Webflow</span>
+              <span className="text-3xl font-bold text-neutral-400">Wix</span>
+              <span className="text-3xl font-bold text-neutral-400">Squarespace</span>
+              <span className="text-3xl font-bold text-neutral-400">Django</span>
+              <span className="text-3xl font-bold text-neutral-400">Flask</span>
+              <span className="text-3xl font-bold text-neutral-400">Laravel</span>
+              <span className="text-3xl font-bold text-neutral-400">Ruby on Rails</span>
+              <span className="text-3xl font-bold text-neutral-400">Express</span>
+              <span className="text-3xl font-bold text-neutral-400">HTML/CSS</span>
+              <span className="text-3xl font-bold text-neutral-400">Static Sites</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Easy Setup Section */}
+      <section className="w-full max-w-6xl mx-auto py-24 px-4">
+        <div className="text-center mb-16">
+          <h2 className="text-5xl font-extrabold text-white mb-4">Setup in Seconds</h2>
+          <p className="text-xl text-neutral-300">Three simple steps to start tracking</p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-16 items-center">
+          {/* Left: Steps */}
+          <div className="space-y-8">
+            <div className="flex gap-6">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl">
+                1
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-white mb-2">Create Your Project</h3>
+                <p className="text-neutral-400">Sign up and create a new project in less than 30 seconds</p>
+              </div>
+            </div>
+
+            <div className="flex gap-6">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl">
+                2
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-white mb-2">Copy the Snippet</h3>
+                <p className="text-neutral-400">Get your unique tracking code instantly</p>
+              </div>
+            </div>
+
+            <div className="flex gap-6">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl">
+                3
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-white mb-2">Paste & Track</h3>
+                <p className="text-neutral-400">Add it to your site and start collecting insights immediately</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Code Snippet Mockup */}
+          <div className="bg-neutral-900 rounded-2xl border border-neutral-800 p-6 shadow-2xl">
+            <div className="flex items-center gap-2 mb-4 border-b border-neutral-800 pb-3">
+              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+              <div className="w-3 h-3 rounded-full bg-green-500"></div>
+              <span className="text-neutral-500 text-sm ml-2">snippet.html</span>
+            </div>
+            <pre className="text-sm text-neutral-300 overflow-x-auto">
+              <code>{`<script 
+  src="https://firstclick.vercel.app/track.js"
+  data-project-id="your-project-id"
+></script>`}</code>
+            </pre>
+            <div className="mt-4 pt-4 border-t border-neutral-800">
+              <p className="text-xs text-neutral-500">✨ That&apos;s it! No complex setup or configuration needed.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Analytics Features Section */}
+      <section className="w-full py-24 bg-gradient-to-b from-transparent via-indigo-950/20 to-transparent">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-extrabold text-white mb-4">Powerful Analytics Dashboard</h2>
+            <p className="text-xl text-neutral-300">Everything you need to understand your users</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Feature 1 */}
+            <div className="bg-neutral-900/50 backdrop-blur border border-neutral-800 rounded-2xl p-8 hover:border-indigo-500/50 transition">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center mb-6">
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-3">Real-Time Analytics</h3>
+              <p className="text-neutral-400">Track clicks, page views, and user behavior as it happens. See hourly breakdowns for today or lifetime trends.</p>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="bg-neutral-900/50 backdrop-blur border border-neutral-800 rounded-2xl p-8 hover:border-indigo-500/50 transition">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center mb-6">
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-3">User Journey Mapping</h3>
+              <p className="text-neutral-400">Visualize how users navigate through your site with interactive flow charts. Drag and drop widgets to customize your view.</p>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="bg-neutral-900/50 backdrop-blur border border-neutral-800 rounded-2xl p-8 hover:border-indigo-500/50 transition">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center mb-6">
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-3">Device Breakdown</h3>
+              <p className="text-neutral-400">Understand your audience with detailed device analytics. See mobile, desktop, and tablet traffic at a glance.</p>
+            </div>
+
+            {/* Feature 4 */}
+            <div className="bg-neutral-900/50 backdrop-blur border border-neutral-800 rounded-2xl p-8 hover:border-indigo-500/50 transition">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center mb-6">
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-3">Session Logs</h3>
+              <p className="text-neutral-400">View detailed session data with timestamps, referrers, and user agents. Filter by date range for deeper insights.</p>
+            </div>
+
+            {/* Feature 5 */}
+            <div className="bg-neutral-900/50 backdrop-blur border border-neutral-800 rounded-2xl p-8 hover:border-indigo-500/50 transition">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center mb-6">
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-3">Flex Cards</h3>
+              <p className="text-neutral-400">Create beautiful cards showcasing your growth. Share your success on social media and climb the leaderboard.</p>
+            </div>
+
+            {/* Feature 6 */}
+            <div className="bg-neutral-900/50 backdrop-blur border border-neutral-800 rounded-2xl p-8 hover:border-indigo-500/50 transition">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center mb-6">
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-3">Lightning Fast</h3>
+              <p className="text-neutral-400">Optimized for performance with real-time updates. Your analytics load instantly without slowing down your site.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Flex Card Demo */}
       <section className="w-full max-w-2xl mx-auto text-center py-20">
         <h2 className="text-4xl font-extrabold text-white mb-4">Your Growth, Visualized</h2>
