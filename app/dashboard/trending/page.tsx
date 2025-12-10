@@ -107,19 +107,9 @@ export default function TrendingProjectsPage() {
   const [loading, setLoading] = useState(true);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
-  // Debug render timing
-  useEffect(() => {
-    if (!loading) {
-      console.log('[Trending] React render after loading=false at', new Date().toISOString());
-    }
-    console.log('[Trending] Trending data set:', trending.length);
-  }, [loading, trending]);
-
   useEffect(() => {
 
     async function fetchTrending() {
-      const startTime = performance.now();
-      console.log('[Trending] Fetch started at', new Date().toISOString());
       const supabase = createClient();
       
       // Calculate UTC date ranges for today and yesterday
@@ -134,27 +124,11 @@ export default function TrendingProjectsPage() {
       // OPTIMIZATION: Fetch all data in parallel instead of sequentially
       const [
         { data: { user } },
-        { data: projects },
-        { data: clicksToday },
-        { data: clicksYesterday }
+        { data: projects }
       ] = await Promise.all([
         supabase.auth.getUser(),
-        supabase.from("projects").select("id, name, description, url, user_id"),
-        // Database-side aggregation for today's clicks
-        supabase
-          .from("page_visits")
-          .select("project_id")
-          .gte("timestamp", todayStart.toISOString())
-          .lte("timestamp", todayEnd.toISOString()),
-        // Database-side aggregation for yesterday's clicks
-        supabase
-          .from("page_visits")
-          .select("project_id")
-          .gte("timestamp", yesterdayStart.toISOString())
-          .lte("timestamp", yesterdayEnd.toISOString())
+        supabase.from("projects").select("id, name, description, url, user_id")
       ]);
-
-      console.log('[Trending] All data fetched in parallel');
       
       if (user) {
         setUserEmail(user.email || null);
@@ -176,17 +150,31 @@ export default function TrendingProjectsPage() {
         userSettings?.map(s => [s.user_id, s.equipped_design_id || 'classic']) || []
       );
 
-      // Aggregate counts by project_id (faster in-memory aggregation)
+      // Get counts for each project using proper count queries
       const todayCounts: Record<string, number> = {};
       const yesterdayCounts: Record<string, number> = {};
       
-      clicksToday?.forEach((row) => {
-        todayCounts[row.project_id] = (todayCounts[row.project_id] || 0) + 1;
-      });
-      
-      clicksYesterday?.forEach((row) => {
-        yesterdayCounts[row.project_id] = (yesterdayCounts[row.project_id] || 0) + 1;
-      });
+      await Promise.all(
+        projects.map(async (project) => {
+          const [todayResult, yesterdayResult] = await Promise.all([
+            supabase
+              .from("page_visits")
+              .select("*", { count: "exact", head: true })
+              .eq("project_id", project.id)
+              .gte("timestamp", todayStart.toISOString())
+              .lte("timestamp", todayEnd.toISOString()),
+            supabase
+              .from("page_visits")
+              .select("*", { count: "exact", head: true })
+              .eq("project_id", project.id)
+              .gte("timestamp", yesterdayStart.toISOString())
+              .lte("timestamp", yesterdayEnd.toISOString())
+          ]);
+          
+          todayCounts[project.id] = todayResult.count || 0;
+          yesterdayCounts[project.id] = yesterdayResult.count || 0;
+        })
+      );
 
       // Calculate percent change for each project
       const trendingData = projects.map((project) => {
@@ -216,9 +204,6 @@ export default function TrendingProjectsPage() {
 
       setTrending(filteredData);
       setLoading(false);
-      const endTime = performance.now();
-      console.log('[Trending] Fetch finished at', new Date().toISOString());
-      console.log('[Trending] Total load time (ms):', Math.round(endTime - startTime));
     }
 
     fetchTrending();
@@ -231,7 +216,6 @@ export default function TrendingProjectsPage() {
     // Refresh when page becomes visible (tab switching)
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        // Removed unnecessary console.log for performance
         fetchTrending();
       }
     };
@@ -245,7 +229,6 @@ export default function TrendingProjectsPage() {
   }, []);
 
   if (loading) {
-    console.log('[Trending] Render: Loading trending projects...');
     return (
       <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
         <MousePointer2 className="w-16 h-16 text-indigo-400 animate-pulse" />
