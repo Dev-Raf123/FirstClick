@@ -26,6 +26,7 @@ const flexCardConfigs: Record<string, FlexCardConfig> = {
 
 export function FlexCardNew({ projectName, percentChange, clicksToday, clicksYesterday, equippedDesignId = "classic", url }: FlexCardProps) {
   const cardRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   // Consistent card size for both preview and export
   const CARD_WIDTH = 420;
   const CARD_HEIGHT = 560;
@@ -37,8 +38,8 @@ export function FlexCardNew({ projectName, percentChange, clicksToday, clicksYes
       e.preventDefault();
       e.stopPropagation();
     }
-    if (!cardRef.current) return;
-    const el = cardRef.current as HTMLElement;
+    if (!containerRef.current) return;
+    const el = containerRef.current as HTMLElement;
     // Hide download and share buttons for export
     const btn = el.querySelector('[data-download-btn]') as HTMLElement | null;
     const shareBtn = el.querySelector('[data-share-btn]') as HTMLElement | null;
@@ -52,11 +53,11 @@ export function FlexCardNew({ projectName, percentChange, clicksToday, clicksYes
         const html2canvas = module.default;
         const scale = 2;
         const canvas = await html2canvas(el, {
-          backgroundColor: null,
+          backgroundColor: "#000000",
           useCORS: true,
           scale,
-          width: CARD_WIDTH,
-          height: CARD_HEIGHT,
+          width: CARD_WIDTH + 160,
+          height: CARD_HEIGHT + 160,
         });
         if (canvas.toBlob) {
           canvas.toBlob((blob) => {
@@ -126,7 +127,7 @@ export function FlexCardNew({ projectName, percentChange, clicksToday, clicksYes
   );
 
   return (
-    <div className="w-full max-w-[420px] p-4">
+    <div ref={containerRef} className="w-full max-w-[420px] p-[80px]">
       <div
         ref={cardRef}
         className="relative w-full aspect-[3/4] rounded-3xl overflow-hidden shadow-lg flex flex-col justify-between transition-transform duration-200 transform hover:scale-[1.02] hover:shadow-[0_20px_60px_rgba(99,102,241,0.12)] cursor-pointer filter hover:brightness-105"
