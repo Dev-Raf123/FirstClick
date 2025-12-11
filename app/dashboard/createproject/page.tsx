@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Check } from "lucide-react";
@@ -415,7 +415,29 @@ export default function CreateProject() {
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [projectId, setProjectId] = useState<string | null>(null);
+  const [hasExistingProject, setHasExistingProject] = useState(false);
+  const [checkingProjects, setCheckingProjects] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    async function checkExistingProjects() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push('/auth/login');
+        return;
+      }
+      const { data: projects } = await supabase
+        .from('projects')
+        .select('id')
+        .eq('user_id', user.id);
+      if (projects && projects.length > 0) {
+        setHasExistingProject(true);
+      }
+      setCheckingProjects(false);
+    }
+    checkExistingProjects();
+  }, [router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -425,6 +447,17 @@ export default function CreateProject() {
     if (!user) {
       alert("Not logged in");
       setLoading(false);
+      return;
+    }
+    // Check for existing projects before creating
+    const { data: existingProjects } = await supabase
+      .from('projects')
+      .select('id')
+      .eq('user_id', user.id);
+    if (existingProjects && existingProjects.length > 0) {
+      alert('You can only have one project. Please delete your existing project first.');
+      setLoading(false);
+      router.push('/dashboard');
       return;
     }
     // Create project row with platform
@@ -450,6 +483,36 @@ export default function CreateProject() {
     acc[platform.category].push(platform);
     return acc;
   }, {} as Record<string, Platform[]>);
+
+  // Loading state while checking for existing projects
+  if (checkingProjects) {
+    return (
+      <main className="min-h-screen bg-neutral-950 flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </main>
+    );
+  }
+
+  // If user already has a project, redirect them
+  if (hasExistingProject) {
+    return (
+      <main className="min-h-screen bg-neutral-950 flex items-center justify-center p-6">
+        <div className="max-w-md text-center">
+          <div className="text-6xl mb-6">⚠️</div>
+          <h2 className="text-2xl text-white font-bold mb-4">Project Limit Reached</h2>
+          <p className="text-neutral-400 mb-6">
+            You can only have one project at a time. Please delete your existing project from the dashboard if you want to create a new one.
+          </p>
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-semibold hover:shadow-lg hover:shadow-indigo-500/50 transition-all duration-200"
+          >
+            Go to Dashboard
+          </button>
+        </div>
+      </main>
+    );
+  }
 
   if (step === 'platform') {
     return (

@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { SnippetBox } from "./SnippetBox";
 import { ProjectMenu } from "./ProjectMenu";
-import { FlexCardModal } from "./FlexCardModal";
+import { QuickInsights } from "./QuickInsights";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { 
@@ -160,14 +160,16 @@ export function ProjectList({ projects: initialProjects, clicksPerProject: initi
     <div className="border border-neutral-700 rounded-xl bg-black p-4 sm:p-6">
       <h2 className="text-base sm:text-2xl text-white mb-4 flex items-center justify-between">
         Projects
-        <Link href="/dashboard/createproject">
-          <button
-            className="ml-2 px-2 py-1 bg-indigo-700 text-white rounded-md text-xl hover:bg-indigo-800 transition"
-            title="Create new project"
-          >
-            +
-          </button>
-        </Link>
+        {projects.length === 0 && (
+          <Link href="/dashboard/createproject">
+            <button
+              className="ml-2 px-2 py-1 bg-indigo-700 text-white rounded-md text-xl hover:bg-indigo-800 transition"
+              title="Create new project"
+            >
+              +
+            </button>
+          </Link>
+        )}
       </h2>
       <div className="grid grid-cols-1 gap-4 sm:gap-6">
         {projects?.length ? (
@@ -236,7 +238,7 @@ export function ProjectList({ projects: initialProjects, clicksPerProject: initi
                       <div className="font-semibold text-white flex items-center gap-2 text-sm sm:text-base flex-wrap">
                         {project.name}
                         <span className="text-xs bg-indigo-700 text-white px-2.5 py-1 rounded">
-                          {clicksPerProject[project.id] || 0} clicks
+                          {clicksPerProject[project.id] || 0} Total clicks
                         </span>
                         {projectPercentages[project.id] !== undefined && (
                           <span 
@@ -250,11 +252,6 @@ export function ProjectList({ projects: initialProjects, clicksPerProject: initi
                           </span>
                         )}
                       </div>
-                      {projectPercentages[project.id] > 0 && (
-                        <div onClick={(e) => e.preventDefault()} className="flex-shrink-0">
-                          <FlexCardModal projectId={project.id} projectName={project.name} />
-                        </div>
-                      )}
                     </div>
                     <div className="text-xs text-neutral-400 break-all mt-3">
                       Token: <span className="font-mono">{project.id}</span>
@@ -263,6 +260,10 @@ export function ProjectList({ projects: initialProjects, clicksPerProject: initi
                   <div className="px-0 sm:px-6 pb-4">
                     {/* Tracking Snippet */}
                     <SnippetBox projectId={project.id} />
+                  </div>
+                  {/* Quick Insights */}
+                  <div className="px-4 sm:px-6 pb-6">
+                    <QuickInsights projectId={project.id} />
                   </div>
                 </div>
               );

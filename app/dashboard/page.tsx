@@ -2,10 +2,10 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { AuthButton } from "@/components/auth-button";
 import { ProjectList } from "./ProjectList";
-import { TotalClicksCard } from "./TotalClicksCard";
 import { MousePointer2 } from "lucide-react";
 import Link from "next/link";
 import { OnboardingTutorial } from "@/components/onboarding-tutorial";
+import { DashboardFlexCard } from "./DashboardFlexCard";
 
 export default async function Dashboard() {
   const supabase = await createClient();
@@ -23,12 +23,6 @@ export default async function Dashboard() {
     .select("*")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
-
-  // Get total count for all projects
-  const { count: totalViews } = await supabase
-    .from("page_visits")
-    .select("*", { count: "exact", head: true })
-    .in("project_id", projects?.map((p) => p.id) || []);
 
   // Count visits per project
   const clicksPerProject: Record<string, number> = {};
@@ -74,15 +68,16 @@ export default async function Dashboard() {
       </nav>
       <main className="relative min-h-screen max-w-7xl mx-auto py-6 px-2 sm:px-4 cursor-none">
         <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-stretch md:items-start">
-          {/* Project boxes first */}
+          {/* Project boxes */}
           <div className="flex-1 flex flex-col gap-4">
             <ProjectList projects={projects || []} clicksPerProject={clicksPerProject} />
           </div>
-          {/* Total Clicks Card on the right */}
-          <TotalClicksCard 
-            projectIds={projects?.map((p) => p.id) || []} 
-            initialTotalViews={totalViews || 0} 
-          />
+          {/* Show Flex Card if project exists */}
+          {projects && projects.length > 0 && (
+            <div className="md:w-[420px]">
+              <DashboardFlexCard projectId={projects[0].id} projectName={projects[0].name} />
+            </div>
+          )}
         </div>
       </main>
     </>
