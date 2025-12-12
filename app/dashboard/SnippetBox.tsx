@@ -60,6 +60,12 @@ export function SnippetBox({ projectId }: { projectId: string }) {
 
   return (
     <div className="mt-2 relative">
+      <div className="mb-2 p-2 bg-yellow-900/20 border border-yellow-600/30 rounded text-xs text-yellow-200 flex items-start gap-2">
+        <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <span>Never share your Project ID with anyone. Anyone with your Project ID can send data to your analytics.</span>
+      </div>
       <div className="text-xs text-neutral-400 mb-1 flex items-center justify-between">
         <span>Tracking Snippet:</span>
         <button
