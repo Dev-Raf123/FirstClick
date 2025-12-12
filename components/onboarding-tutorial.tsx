@@ -32,7 +32,7 @@ const tutorialSteps: TutorialStep[] = [
   },
   {
     title: "Create Flex Cards",
-    description: "Show off your growth! , You'll find a flex button once clicks start appearing on your project. Download and share your very own Flex Card on social media to showcase your success!. You might get a chance to be featured on a Firstclick's Twitter posts if you share it and @FirstClick!",
+    description: "Show off your growth! , You'll find a flex button once clicks start appearing on your project. Download and share your very own Flex Card on social media to showcase your success!. You might get a chance to be featured on a Firstclick's Twitter posts if you share it and @FirstClick_co ",
     target: "flex-card",
   },
   {

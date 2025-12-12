@@ -253,9 +253,6 @@ export function ProjectList({ projects: initialProjects, clicksPerProject: initi
                         )}
                       </div>
                     </div>
-                    <div className="text-xs text-neutral-400 break-all mt-3">
-                      Token: <span className="font-mono">{project.id}</span>
-                    </div>
                   </Link>
                   <div className="px-0 sm:px-6 pb-4">
                     {/* Tracking Snippet */}
