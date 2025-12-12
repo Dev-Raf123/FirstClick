@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 interface ImageCardProps {
   image: string;
@@ -21,6 +21,8 @@ export const ImageCard: React.FC<ImageCardProps> = ({
   date,
   url,
 }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!url) return;
     if (e.key === "Enter" || e.key === " ") {
@@ -41,6 +43,8 @@ export const ImageCard: React.FC<ImageCardProps> = ({
         role={url ? 'link' : undefined}
         aria-label={`${name} — ${percent > 0 ? '+' : ''}${percent}% growth; ${clicksToday} clicks today`}
         onKeyDown={handleKeyDown}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         onClick={() => {
           if (url) {
             window.open(url, '_blank', 'noopener,noreferrer');
@@ -48,6 +52,19 @@ export const ImageCard: React.FC<ImageCardProps> = ({
         }}
       >
         <div className="absolute inset-0 pointer-events-none" style={{ boxShadow: 'inset 0 0 40px rgba(0,0,0,0.25)' }} />
+        
+        {/* "Visit Website" overlay on hover */}
+        {isHovered && url && (
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-20 transition-opacity duration-200">
+            <div className="text-white text-2xl font-bold flex items-center gap-3">
+              <span>Visit Website</span>
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </div>
+          </div>
+        )}
+
         {/* content */}
         <div className="relative z-10 p-4 sm:p-6 flex flex-col h-full justify-between">
           <div>
