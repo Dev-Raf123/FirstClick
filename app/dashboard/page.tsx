@@ -57,6 +57,25 @@ export default async function Dashboard() {
             </Link>
           </div>
           <div className="flex items-center gap-3 ml-auto">
+            <div className="relative group">
+              <button className="relative p-2 rounded-lg hover:bg-neutral-800 transition-colors">
+                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                <span className="absolute top-1 right-1 w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>
+              </button>
+              <div className="absolute right-0 top-full mt-2 w-80 bg-neutral-900 border border-neutral-700 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center">
+                    <span className="text-white text-sm font-bold">✨</span>
+                  </div>
+                  <div>
+                    <h4 className="text-white font-semibold mb-1">FirstClick v1</h4>
+                    <p className="text-neutral-300 text-sm">You can now create your own backgrounds for your flex cards in library!</p>
+                  </div>
+                </div>
+              </div>
+            </div>
             <MousePointer2 className="w-7 h-7 text-white -scale-x-100" />
             <span className="border border-indigo-500 text-indigo-400 text-xs px-2 py-0.5 rounded uppercase font-semibold tracking-wide ml-1">
               beta
@@ -66,15 +85,15 @@ export default async function Dashboard() {
           </div>
         </div>
       </nav>
-      <main className="relative min-h-screen max-w-7xl mx-auto py-6 px-2 sm:px-4 cursor-none">
-        <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-stretch md:items-start">
+      <main className="relative min-h-screen max-w-7xl mx-auto py-4 px-2 sm:px-4 cursor-none">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-stretch md:items-start">
           {/* Project boxes */}
-          <div className="flex-1 flex flex-col gap-4">
+          <div className="flex-1 flex flex-col gap-3">
             <ProjectList projects={projects || []} clicksPerProject={clicksPerProject} />
           </div>
           {/* Show Flex Card if project exists */}
           {projects && projects.length > 0 && (
-            <div className="md:w-[420px]">
+            <div className="md:w-[340px]">
               <DashboardFlexCard projectId={projects[0].id} projectName={projects[0].name} />
             </div>
           )}

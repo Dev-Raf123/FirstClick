@@ -127,7 +127,7 @@ export default function TrendingProjectsPage() {
         { data: projects }
       ] = await Promise.all([
         supabase.auth.getUser(),
-        supabase.from("projects").select("id, name, description, url, user_id")
+        supabase.from("projects").select("id, name, description, url, user_id, background_url, background_position, background_size, background_repeat, equipped_design_id, text_color")
       ]);
       
       if (user) {
@@ -139,16 +139,7 @@ export default function TrendingProjectsPage() {
         return;
       }
 
-      // Fetch user settings for all project owners in parallel
-      const userIds = [...new Set(projects.map(p => p.user_id))];
-      const { data: userSettings } = await supabase
-        .from('user_settings')
-        .select('user_id, equipped_design_id')
-        .in('user_id', userIds);
-
-      const equippedDesignMap = new Map(
-        userSettings?.map(s => [s.user_id, s.equipped_design_id || 'classic']) || []
-      );
+      // Designs will be read from each project's equipped_design_id field
 
       // Get counts for each project using proper count queries
       const todayCounts: Record<string, number> = {};
@@ -182,8 +173,8 @@ export default function TrendingProjectsPage() {
         const clicksYesterday = yesterdayCounts[project.id] || 0;
         const percent = calculateClickPercentageChange(clicksToday, clicksYesterday);
 
-        // Get user's equipped design
-        const equippedDesignId = equippedDesignMap.get(project.user_id) || 'classic';
+        // Get equipped design from project
+        const equippedDesignId = project.equipped_design_id || 'classic';
         const designConfig = flexCardConfigs[equippedDesignId] || flexCardConfigs['classic'];
 
         return {
@@ -193,7 +184,12 @@ export default function TrendingProjectsPage() {
           clicksPrev: clicksYesterday,
           prevDay: 'yesterday',
           equippedDesignId,
-          designConfig
+          designConfig,
+          // Explicitly include background fields (already in ...project, but for clarity)
+          background_url: project.background_url,
+          background_position: project.background_position,
+          background_size: project.background_size,
+          background_repeat: project.background_repeat,
         };
       });
 
@@ -380,10 +376,19 @@ export default function TrendingProjectsPage() {
             }
             
             // Render default image card for all designs (user requested default image for trending cards)
-            // Use the equipped design's image if available
+            // Use the equipped design's image if available, or custom background if set
             const imageSrc = proj.designConfig.pattern === 'image' && proj.designConfig.image
               ? proj.designConfig.image
               : "/664b6af1e2428aed06246af0c6581efb.jpg";
+            
+            // Build custom background object if background_url exists
+            const customBg = proj.background_url ? {
+              url: proj.background_url,
+              position: proj.background_position || 'center',
+              size: proj.background_size || 'cover',
+              repeat: proj.background_repeat || 'no-repeat',
+            } : undefined;
+
             return (
                 <div key={proj.id} className="relative">
 
@@ -396,6 +401,8 @@ export default function TrendingProjectsPage() {
                     clicksPrev={proj.clicksPrev}
                     date={new Date().toLocaleDateString()}
                     url={proj.url}
+                    customBackground={customBg}
+                    textColor={proj.text_color as 'white' | 'black' || 'white'}
                   />
                 </div>
             );

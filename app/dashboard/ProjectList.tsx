@@ -112,14 +112,12 @@ export function ProjectList({ projects: initialProjects, clicksPerProject: initi
 
     // Auto-refresh every 10 seconds
     const interval = setInterval(() => {
-      console.log('[DASHBOARD] Auto-refreshing...');
       fetchPercentages();
     }, 10000);
 
     // Refresh when page becomes visible (tab switching)
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        console.log('[DASHBOARD] Page became visible, refetching...');
         fetchPercentages();
       }
     };
@@ -157,13 +155,13 @@ export function ProjectList({ projects: initialProjects, clicksPerProject: initi
   }
 
   return (
-    <div className="border border-neutral-700 rounded-xl bg-black p-4 sm:p-6">
-      <h2 className="text-base sm:text-2xl text-white mb-4 flex items-center justify-between">
+    <div className="border border-neutral-700 rounded-xl bg-black p-3 sm:p-4">
+      <h2 className="text-sm sm:text-xl text-white mb-3 flex items-center justify-between">
         Projects
         {projects.length === 0 && (
           <Link href="/dashboard/createproject">
             <button
-              className="ml-2 px-2 py-1 bg-indigo-700 text-white rounded-md text-xl hover:bg-indigo-800 transition"
+              className="ml-2 px-1.5 py-0.5 bg-indigo-700 text-white rounded-md text-lg hover:bg-indigo-800 transition"
               title="Create new project"
             >
               +
@@ -171,7 +169,7 @@ export function ProjectList({ projects: initialProjects, clicksPerProject: initi
           </Link>
         )}
       </h2>
-      <div className="grid grid-cols-1 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 gap-3">
         {projects?.length ? (
           projects
             .filter((project) => !deletedIds.includes(project.id))
@@ -205,10 +203,10 @@ export function ProjectList({ projects: initialProjects, clicksPerProject: initi
               return (
                 <div
                   key={project.id}
-                  className="relative border border-neutral-700 bg-black rounded-xl p-4 sm:p-0 overflow-hidden"
+                  className="relative border border-neutral-700 bg-black rounded-lg p-3 sm:p-0 overflow-hidden"
                 >
                   {/* ProjectMenu absolutely positioned in the top-right */}
-                  <div className="absolute top-4 right-4 z-10">
+                  <div className="absolute top-3 right-3 z-10">
                     <ProjectMenu
                       onSeeSnippet={() => setModalSnippet(fullSnippet)}
                       onDelete={async () => {
@@ -232,18 +230,18 @@ export function ProjectList({ projects: initialProjects, clicksPerProject: initi
                   </div>
                   <Link
                     href={`/UserProjects/${project.id}`}
-                    className="block p-4 sm:p-6 hover:bg-neutral-900 transition-colors"
+                    className="block p-3 sm:p-4 hover:bg-neutral-900 transition-colors"
                   >
-                    <div className="flex items-center justify-between gap-4 pr-8">
-                      <div className="font-semibold text-white flex items-center gap-2 text-sm sm:text-base flex-wrap">
+                    <div className="flex items-center justify-between gap-3 pr-6">
+                      <div className="font-semibold text-white flex items-center gap-2 text-xs sm:text-sm flex-wrap">
                         {project.name}
-                        <span className="text-xs bg-indigo-700 text-white px-2.5 py-1 rounded">
+                        <span className="text-[10px] bg-indigo-700 text-white px-2 py-0.5 rounded">
                           {clicksPerProject[project.id] || 0} Total clicks
                         </span>
                         {projectPercentages[project.id] !== undefined && (
                           <span 
                             key={`${project.id}-${lastUpdate}`}
-                            className={`text-xs font-bold px-2.5 py-1 rounded ${
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded ${
                             projectPercentages[project.id] > 0 ? 'bg-green-700 text-white' :
                             projectPercentages[project.id] < 0 ? 'bg-red-700 text-white' :
                             'bg-neutral-700 text-neutral-300'
@@ -254,12 +252,12 @@ export function ProjectList({ projects: initialProjects, clicksPerProject: initi
                       </div>
                     </div>
                   </Link>
-                  <div className="px-0 sm:px-6 pb-4">
+                  <div className="px-0 sm:px-4 pb-3">
                     {/* Tracking Snippet */}
                     <SnippetBox projectId={project.id} />
                   </div>
                   {/* Quick Insights */}
-                  <div className="px-4 sm:px-6 pb-6">
+                  <div className="px-3 sm:px-4 pb-4">
                     <QuickInsights projectId={project.id} />
                   </div>
                 </div>

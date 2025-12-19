@@ -673,7 +673,30 @@ export default function CreateProject() {
 
   // Success step
   if (step === 'success' && projectId) {
-    const snippet = `<script src="https://firstclick.com/track.js" data-project-id="${projectId}"></script>`;
+    const snippet = `<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script>
+  window.addEventListener('DOMContentLoaded', function () {
+    const SUPABASE_URL = 'https://ckhoremindgjrtmjoanw.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNraG9yZW1pbmRnanJ0bWpvYW53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA5MzY1NDksImV4cCI6MjA2NjUxMjU0OX0.aDJaxW_C3CfyU9nBu0JG5NaHIymO0c0GVsDywXNOqfE';
+    const PROJECT_ID = '${projectId}';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const payload = {
+      url: window.location.pathname,
+      project_id: PROJECT_ID,
+      user_agent: navigator.userAgent,
+      referrer: document.referrer
+    };
+
+    supabaseClient.from('page_visits').insert([payload])
+      .then(response => {
+        // Success
+      })
+      .catch(error => {
+        // Error
+      });
+  });
+</script>`;
     
     return (
       <main className="min-h-screen bg-neutral-950 p-6 flex items-center justify-center">
@@ -701,7 +724,13 @@ export default function CreateProject() {
                 Copy Code
               </button>
             </div>
-            <pre className="bg-neutral-950 p-4 rounded-xl text-left overflow-x-auto">
+            <div className="mb-4 p-3 bg-yellow-900/20 border border-yellow-600/30 rounded-lg text-xs text-yellow-200 flex items-start gap-2">
+              <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span>Never share your Project ID with anyone. Anyone with your Project ID can send data to your analytics.</span>
+            </div>
+            <pre className="bg-neutral-950 p-4 rounded-xl text-left overflow-x-auto whitespace-pre-wrap break-all">
               <code className="text-emerald-400 text-sm">{snippet}</code>
             </pre>
           </div>

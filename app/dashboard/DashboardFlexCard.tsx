@@ -20,32 +20,43 @@ export function DashboardFlexCard({ projectId, projectName }: DashboardFlexCardP
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [projectUrl, setProjectUrl] = useState<string | null>(null);
+  const [customBackground, setCustomBackground] = useState<{
+    url: string;
+    position: string;
+    size: string;
+    repeat: string;
+  } | null>(null);
+  const [textColor, setTextColor] = useState<'white' | 'black'>('white');
   
 
   useEffect(() => {
     const supabase = createClient();
     
     async function fetchStats() {
-      // Get project to find owner and project URL
+      // Get project to find owner, project URL, and custom background
       const { data: project } = await supabase
         .from("projects")
-        .select("user_id, url")
+        .select("user_id, url, background_url, background_position, background_size, background_repeat, equipped_design_id, text_color")
         .eq("id", projectId)
         .single();
 
-      // Fetch owner's equipped design
-      let equippedDesignId = 'classic';
-      if (project?.user_id) {
-        const { data: userSettings } = await supabase
-          .from("user_settings")
-          .select("equipped_design_id")
-          .eq("user_id", project.user_id)
-          .single();
-        
-        if (userSettings?.equipped_design_id) {
-          equippedDesignId = userSettings.equipped_design_id;
-        }
+      // Set custom background if exists
+      if (project?.background_url) {
+        setCustomBackground({
+          url: project.background_url,
+          position: project.background_position || 'center',
+          size: project.background_size || 'cover',
+          repeat: project.background_repeat || 'no-repeat',
+        });
+      } else {
+        setCustomBackground(null);
       }
+
+      // Set text color
+      setTextColor(project?.text_color as 'white' | 'black' || 'white');
+
+      // Get equipped design from project
+      let equippedDesignId = project?.equipped_design_id || 'classic';
       
       // Calculate UTC date ranges
       const now = new Date();
@@ -127,6 +138,8 @@ export function DashboardFlexCard({ projectId, projectName }: DashboardFlexCardP
       clicksYesterday={stats.clicksYesterday}
       equippedDesignId={stats.equippedDesignId}
       url={projectUrl || undefined}
+      customBackground={customBackground || undefined}
+      textColor={textColor}
     />
   );
 }

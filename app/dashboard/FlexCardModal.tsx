@@ -35,23 +35,12 @@ export function FlexCardModal({ projectId, projectName }: FlexCardModalProps) {
     // Get project to find owner and project URL
     const { data: project } = await supabase
       .from("projects")
-      .select("user_id, url")
+      .select("user_id, url, equipped_design_id")
       .eq("id", projectId)
       .single();
 
-    // Fetch owner's equipped design
-    let equippedDesignId = 'classic';
-    if (project?.user_id) {
-      const { data: userSettings } = await supabase
-        .from("user_settings")
-        .select("equipped_design_id")
-        .eq("user_id", project.user_id)
-        .single();
-      
-      if (userSettings?.equipped_design_id) {
-        equippedDesignId = userSettings.equipped_design_id;
-      }
-    }
+    // Get equipped design from project
+    let equippedDesignId = project?.equipped_design_id || 'classic';
     
     // Calculate UTC date ranges
     const now = new Date();

@@ -9,6 +9,13 @@ interface FlexCardProps {
   clicksYesterday: number;
   equippedDesignId?: string;
   url?: string;
+  customBackground?: {
+    url: string;
+    position: string;
+    size: string;
+    repeat: string;
+  };
+  textColor?: 'white' | 'black';
 }
 
 interface FlexCardConfig {
@@ -24,14 +31,26 @@ const flexCardConfigs: Record<string, FlexCardConfig> = {
   "custom-image": { gradient: "", pattern: "image", customStyle: {}, image: "/116a690e6c1e4e1de9ebd801475d990c.jpg" },
 };
 
-export function FlexCardNew({ projectName, percentChange, clicksToday, clicksYesterday, equippedDesignId = "classic", url }: FlexCardProps) {
+export function FlexCardNew({ projectName, percentChange, clicksToday, clicksYesterday, equippedDesignId = "classic", url, customBackground, textColor = 'white' }: FlexCardProps) {
   const cardRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   // Consistent card size for both preview and export
-  const CARD_WIDTH = 420;
-  const CARD_HEIGHT = 560;
+  const CARD_WIDTH = 340;
+  const CARD_HEIGHT = 453;
   const cardConfig = flexCardConfigs[equippedDesignId] || flexCardConfigs["classic"];
-    const [shareOpen, setShareOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+
+  // Use custom background if provided, otherwise use design config
+  const backgroundStyle = customBackground?.url ? {
+    backgroundImage: `url(${customBackground.url})`,
+    backgroundPosition: customBackground.position || 'center',
+    backgroundSize: customBackground.size || 'cover',
+    backgroundRepeat: customBackground.repeat || 'no-repeat',
+  } : {
+    backgroundImage: cardConfig.pattern === "image" && cardConfig.image ? `url(${cardConfig.image})` : "url(/664b6af1e2428aed06246af0c6581efb.jpg)",
+    backgroundSize: cardConfig.image === "/6c81d6eb7b407ee86a22019d762ed6f7.jpg" ? "80%" : "cover",
+    backgroundPosition: cardConfig.image === "/6c81d6eb7b407ee86a22019d762ed6f7.jpg" ? "center center" : "center",
+  };
 
   const downloadCard = async (e?: React.MouseEvent<HTMLButtonElement>) => {
     if (e) {
@@ -56,8 +75,8 @@ export function FlexCardNew({ projectName, percentChange, clicksToday, clicksYes
           backgroundColor: "#000000",
           useCORS: true,
           scale,
-          width: CARD_WIDTH + 160,
-          height: CARD_HEIGHT + 160,
+          width: CARD_WIDTH + 120,
+          height: CARD_HEIGHT + 120,
         });
         if (canvas.toBlob) {
           canvas.toBlob((blob) => {
@@ -96,45 +115,52 @@ export function FlexCardNew({ projectName, percentChange, clicksToday, clicksYes
     }, 80);
   };
 
-  const renderCore = () => (
-    <>
-      <div className="relative z-10 p-8 flex flex-col h-full justify-between">
-        <div>
-          <h3 className="text-3xl font-extrabold text-white mb-4 drop-shadow-lg">{projectName}</h3>
-        </div>
-        <div className="pb-4">
-          <div className={`font-black text-6xl mb-2 drop-shadow-lg ${percentChange < 0 ? "text-red-300" : percentChange === 0 ? "text-white" : "text-green-300"}`}>
-            {percentChange > 0 ? "+" : ""}{percentChange}%
+  const renderCore = () => {
+    const isWhiteText = textColor === 'white';
+    const percentColor = percentChange < 0 
+      ? (isWhiteText ? "text-red-300" : "text-red-700")
+      : percentChange === 0 
+        ? (isWhiteText ? "text-white" : "text-black")
+        : (isWhiteText ? "text-green-300" : "text-green-700");
+    
+    return (
+      <>
+        <div className="relative z-10 p-6 flex flex-col h-full justify-between">
+          <div>
+            <h3 className={`text-2xl font-extrabold mb-3 drop-shadow-lg ${isWhiteText ? 'text-white' : 'text-black'}`}>{projectName}</h3>
           </div>
-          <div className="text-white/80 text-lg mb-4">Growth Rate</div>
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="bg-white/10 rounded-xl p-4">
-              <div className="text-2xl font-bold text-white">{clicksToday}</div>
-              <div className="text-white/70 text-base">Today</div>
+          <div className="pb-3">
+            <div className={`font-black text-5xl mb-1.5 drop-shadow-lg ${percentColor}`}>
+              {percentChange > 0 ? "+" : ""}{percentChange}%
             </div>
-            <div className="bg-white/10 rounded-xl p-4">
-              <div className="text-2xl font-bold text-white">{clicksYesterday}</div>
-              <div className="text-white/70 text-base">Yesterday</div>
+            <div className={`text-base mb-3 ${isWhiteText ? 'text-white/80' : 'text-black/80'}`}>Growth Rate</div>
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <div className={`${isWhiteText ? 'bg-white/10' : 'bg-black/10'} rounded-lg p-3`}>
+                <div className={`text-xl font-bold ${isWhiteText ? 'text-white' : 'text-black'}`}>{clicksToday}</div>
+                <div className={`text-sm ${isWhiteText ? 'text-white/70' : 'text-black/70'}`}>Today</div>
+              </div>
+              <div className={`${isWhiteText ? 'bg-white/10' : 'bg-black/10'} rounded-lg p-3`}>
+                <div className={`text-xl font-bold ${isWhiteText ? 'text-white' : 'text-black'}`}>{clicksYesterday}</div>
+                <div className={`text-sm ${isWhiteText ? 'text-white/70' : 'text-black/70'}`}>Yesterday</div>
+              </div>
+            </div>
+            <div className={`flex items-center justify-between text-sm ${isWhiteText ? 'text-white/60' : 'text-black/60'}`}>
+              <span>FirstClick</span>
+              <span>{new Date().toLocaleDateString()}</span>
             </div>
           </div>
-          <div className="flex items-center justify-between text-white/60 text-base">
-            <span>FirstClick</span>
-            <span>{new Date().toLocaleDateString()}</span>
-          </div>
         </div>
-      </div>
-    </>
-  );
+      </>
+    );
+  };
 
   return (
-    <div ref={containerRef} className="w-full max-w-[420px] p-[80px]">
+    <div ref={containerRef} className="w-full max-w-[340px] p-[60px]">
       <div
         ref={cardRef}
-        className="relative w-full aspect-[3/4] rounded-3xl overflow-hidden shadow-lg flex flex-col justify-between transition-transform duration-200 transform hover:scale-[1.02] hover:shadow-[0_20px_60px_rgba(99,102,241,0.12)] cursor-pointer filter hover:brightness-105"
+        className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-lg flex flex-col justify-between transition-transform duration-200 transform hover:scale-[1.02] hover:shadow-[0_20px_60px_rgba(99,102,241,0.12)] cursor-pointer filter hover:brightness-105"
         style={{
-          backgroundImage: cardConfig.pattern === "image" && cardConfig.image ? `url(${cardConfig.image})` : "url(/664b6af1e2428aed06246af0c6581efb.jpg)",
-          backgroundSize: cardConfig.image === "/6c81d6eb7b407ee86a22019d762ed6f7.jpg" ? "80%" : "cover",
-          backgroundPosition: cardConfig.image === "/6c81d6eb7b407ee86a22019d762ed6f7.jpg" ? "center center" : "center",
+          ...backgroundStyle,
           width: CARD_WIDTH,
           height: CARD_HEIGHT
         }}

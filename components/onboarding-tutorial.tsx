@@ -113,8 +113,7 @@ export function OnboardingTutorial() {
         .from('user_settings')
         .upsert({ 
           user_id: user.id, 
-          has_completed_onboarding: true,
-          equipped_design_id: 'classic'
+          has_completed_onboarding: true
         }, {
           onConflict: 'user_id'
         });

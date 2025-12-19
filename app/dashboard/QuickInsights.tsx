@@ -126,9 +126,9 @@ export function QuickInsights({ projectId }: QuickInsightsProps) {
 
   if (loading) {
     return (
-      <div className="border border-neutral-700 rounded-xl bg-black p-6">
-        <h3 className="text-lg font-semibold text-white mb-4">Quick Insights</h3>
-        <div className="text-neutral-400">Loading insights...</div>
+      <div className="border border-neutral-700 rounded-lg bg-black p-3">
+        <h3 className="text-sm font-semibold text-white mb-2">Quick Insights</h3>
+        <div className="text-neutral-400 text-xs">Loading insights...</div>
       </div>
     );
   }
@@ -136,73 +136,73 @@ export function QuickInsights({ projectId }: QuickInsightsProps) {
   if (!insights) return null;
 
   return (
-    <div className="border border-neutral-700 rounded-xl bg-black p-6">
-      <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-        <MousePointer2 className="w-5 h-5 text-indigo-400" />
+    <div className="border border-neutral-700 rounded-lg bg-black p-3">
+      <h3 className="text-sm font-semibold text-white mb-2 flex items-center gap-1.5">
+        <MousePointer2 className="w-3.5 h-3.5 text-indigo-400" />
         Quick Insights
       </h3>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {/* Trending Rank */}
-        <div className="bg-neutral-900 rounded-lg p-4 border border-neutral-800">
-          <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="w-4 h-4 text-emerald-400" />
-            <span className="text-xs text-neutral-400 uppercase font-semibold">Trending Rank</span>
+        <div className="bg-neutral-900 rounded-md p-2.5 border border-neutral-800">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <TrendingUp className="w-3 h-3 text-emerald-400" />
+            <span className="text-[10px] text-neutral-400 uppercase font-semibold">Trending Rank</span>
           </div>
-          <div className="text-2xl font-bold text-white">
+          <div className="text-xl font-bold text-white">
             {insights.trendingRank ? `#${insights.trendingRank}` : "N/A"}
           </div>
-          <div className="text-xs text-neutral-500 mt-1">
+          <div className="text-[10px] text-neutral-500 mt-0.5">
             out of {insights.totalProjects} projects
           </div>
         </div>
 
         {/* Top Page */}
-        <div className="bg-neutral-900 rounded-lg p-4 border border-neutral-800">
-          <div className="flex items-center gap-2 mb-2">
-            <Globe className="w-4 h-4 text-blue-400" />
-            <span className="text-xs text-neutral-400 uppercase font-semibold">Top Page</span>
+        <div className="bg-neutral-900 rounded-md p-2.5 border border-neutral-800">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <Globe className="w-3 h-3 text-blue-400" />
+            <span className="text-[10px] text-neutral-400 uppercase font-semibold">Top Page</span>
           </div>
-          <div className="text-sm font-semibold text-white truncate" title={insights.topPage}>
+          <div className="text-xs font-semibold text-white truncate" title={insights.topPage}>
             {insights.topPage}
           </div>
-          <div className="text-xs text-neutral-500 mt-1">
+          <div className="text-[10px] text-neutral-500 mt-0.5">
             {insights.topPageClicks} clicks today
           </div>
         </div>
 
         {/* Device Breakdown */}
-        <div className="bg-neutral-900 rounded-lg p-4 border border-neutral-800">
-          <div className="flex items-center gap-2 mb-2">
-            <Monitor className="w-4 h-4 text-purple-400" />
-            <span className="text-xs text-neutral-400 uppercase font-semibold">Devices</span>
+        <div className="bg-neutral-900 rounded-md p-2.5 border border-neutral-800">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <Monitor className="w-3 h-3 text-purple-400" />
+            <span className="text-[10px] text-neutral-400 uppercase font-semibold">Devices</span>
           </div>
-          <div className="flex gap-3 text-xs">
+          <div className="flex gap-2 text-[10px]">
             <div>
-              <div className="text-white font-bold">{insights.deviceBreakdown.desktop}</div>
+              <div className="text-white font-bold text-xs">{insights.deviceBreakdown.desktop}</div>
               <div className="text-neutral-500">Desktop</div>
             </div>
             <div>
-              <div className="text-white font-bold">{insights.deviceBreakdown.mobile}</div>
+              <div className="text-white font-bold text-xs">{insights.deviceBreakdown.mobile}</div>
               <div className="text-neutral-500">Mobile</div>
             </div>
             <div>
-              <div className="text-white font-bold">{insights.deviceBreakdown.tablet}</div>
+              <div className="text-white font-bold text-xs">{insights.deviceBreakdown.tablet}</div>
               <div className="text-neutral-500">Tablet</div>
             </div>
           </div>
         </div>
 
         {/* Top Referrer */}
-        <div className="bg-neutral-900 rounded-lg p-4 border border-neutral-800">
-          <div className="flex items-center gap-2 mb-2">
-            <Smartphone className="w-4 h-4 text-amber-400" />
-            <span className="text-xs text-neutral-400 uppercase font-semibold">Top Referrer</span>
+        <div className="bg-neutral-900 rounded-md p-2.5 border border-neutral-800">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <Smartphone className="w-3 h-3 text-amber-400" />
+            <span className="text-[10px] text-neutral-400 uppercase font-semibold">Top Referrer</span>
           </div>
-          <div className="text-sm font-semibold text-white truncate" title={insights.topReferrer}>
+          <div className="text-xs font-semibold text-white truncate" title={insights.topReferrer}>
             {insights.topReferrer}
           </div>
-          <div className="text-xs text-neutral-500 mt-1">
+          <div className="text-[10px] text-neutral-500 mt-0.5">
             Today's main source
           </div>
         </div>
