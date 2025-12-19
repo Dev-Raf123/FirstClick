@@ -50,7 +50,7 @@ export default function HomeClient() {
       <div className="w-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600 py-3 mt-16 border-y border-emerald-400/30">
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-white font-bold text-lg">
-            🎉 Launch Special: <span className="text-emerald-100">Free for 14 Days!</span> No credit card required.
+            🎉 Launch Special: <span className="text-emerald-100">Free for Lifetime!</span> No credit card required.
           </p>
         </div>
       </div>
