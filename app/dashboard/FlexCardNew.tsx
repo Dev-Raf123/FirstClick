@@ -155,7 +155,7 @@ export function FlexCardNew({ projectName, percentChange, clicksToday, clicksYes
   };
 
   return (
-    <div ref={containerRef} className="w-full max-w-[340px] p-[60px]">
+    <div ref={containerRef} className="w-full max-w-[340px] p-[60px] relative">
       <div
         ref={cardRef}
         className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-lg flex flex-col justify-between transition-transform duration-200 transform hover:scale-[1.02] hover:shadow-[0_20px_60px_rgba(99,102,241,0.12)] cursor-pointer filter hover:brightness-105"

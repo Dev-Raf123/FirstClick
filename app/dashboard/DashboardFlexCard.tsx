@@ -95,6 +95,7 @@ export function DashboardFlexCard({ projectId, projectName }: DashboardFlexCardP
         equippedDesignId,
       });
       setProjectUrl(project?.url || null);
+      
       setLoading(false);
     }
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 
 interface ImageCardProps {
   image: string;
@@ -16,9 +16,12 @@ interface ImageCardProps {
     repeat: string;
   };
   textColor?: 'white' | 'black';
+  projectId?: string;
+  canTrackAgainst?: boolean;
+  onTrackAgainst?: () => void;
 }
 
-export const ImageCard: React.FC<ImageCardProps> = ({
+export const ImageCard: React.FC<ImageCardProps> = memo(({
   image,
   name,
   description,
@@ -29,6 +32,9 @@ export const ImageCard: React.FC<ImageCardProps> = ({
   url,
   customBackground,
   textColor = 'white',
+  projectId,
+  canTrackAgainst = false,
+  onTrackAgainst,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -54,7 +60,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({
   return (
     <div className="w-full">
       <div
-        className="relative w-full aspect-[3/4] sm:aspect-[4/5] rounded-3xl overflow-hidden shadow-lg flex flex-col justify-between transition-transform duration-200 transform hover:scale-[1.02] hover:shadow-[0_20px_60px_rgba(99,102,241,0.12)] cursor-pointer filter hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+        className="relative w-full aspect-[3/4] sm:aspect-[3/4] rounded-3xl overflow-hidden shadow-lg flex flex-col justify-between transition-transform duration-150 will-change-transform hover:scale-[1.01] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
         style={backgroundStyle}
         tabIndex={url ? 0 : -1}
         role={url ? 'link' : undefined}
@@ -62,7 +68,11 @@ export const ImageCard: React.FC<ImageCardProps> = ({
         onKeyDown={handleKeyDown}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        onClick={() => {
+        onClick={(e) => {
+          // Don't open URL if clicking on action buttons
+          if ((e.target as HTMLElement).closest('.action-button')) {
+            return;
+          }
           if (url) {
             window.open(url, '_blank', 'noopener,noreferrer');
           }
@@ -70,14 +80,38 @@ export const ImageCard: React.FC<ImageCardProps> = ({
       >
         <div className="absolute inset-0 pointer-events-none" style={{ boxShadow: 'inset 0 0 40px rgba(0,0,0,0.25)' }} />
         
-        {/* "Visit Website" overlay on hover */}
-        {isHovered && url && (
+        {/* Action buttons overlay on hover */}
+        {isHovered && (
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-20 transition-opacity duration-200">
-            <div className="text-white text-2xl font-bold flex items-center gap-3">
-              <span>Visit Website</span>
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
+            <div className="flex flex-col gap-3">
+              {url && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(url, '_blank', 'noopener,noreferrer');
+                  }}
+                  className="action-button px-6 py-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white font-semibold transition-all flex items-center gap-2"
+                >
+                  <span>Visit Website</span>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </button>
+              )}
+              {canTrackAgainst && onTrackAgainst && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onTrackAgainst();
+                  }}
+                  className="action-button px-6 py-3 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 rounded-xl text-white font-semibold transition-all flex items-center gap-2 shadow-lg"
+                >
+                  <span>Track Against</span>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -120,4 +154,4 @@ export const ImageCard: React.FC<ImageCardProps> = ({
       </div>
     </div>
   );
-};
+});

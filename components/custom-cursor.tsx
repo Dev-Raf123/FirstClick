@@ -42,7 +42,7 @@ export function CustomCursor() {
         top: cursor.y,
         pointerEvents: "none",
         position: "fixed",
-        zIndex: 200,
+        zIndex: 9999,
         transform: "translate(-50%, -50%)",
       }}
     >

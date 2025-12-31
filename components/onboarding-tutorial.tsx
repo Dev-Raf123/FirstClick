@@ -61,35 +61,24 @@ export function OnboardingTutorial() {
       return;
     }
 
-    // Check localStorage first as a quick check
-    const localStorageKey = `onboarding_completed_${user.id}`;
-    const localCompleted = localStorage.getItem(localStorageKey);
-    
-    if (localCompleted === 'true') {
-      setHasCompletedOnboarding(true);
-      setIsLoading(false);
-      return;
-    }
-
-    // Try to check database (optional)
+    // Check database for onboarding status
     try {
-      const { data: settings } = await supabase
-        .from('user_settings')
-        .select('has_completed_onboarding')
+      const { data: onboardingData } = await supabase
+        .from('dashboard_onboarding')
+        .select('completed')
         .eq('user_id', user.id)
         .maybeSingle();
 
-      // If settings exist and onboarding is completed, don't show tutorial
-      if (settings?.has_completed_onboarding === true) {
+      // If onboarding is completed in database, don't show tutorial
+      if (onboardingData?.completed === true) {
         setHasCompletedOnboarding(true);
-        localStorage.setItem(localStorageKey, 'true');
       } else {
         // Show tutorial for new users or users who haven't completed it
         setHasCompletedOnboarding(false);
         setIsOpen(true);
       }
     } catch (err) {
-      // If database check fails, just show tutorial to new users
+      // If database check fails, show tutorial to be safe
       setHasCompletedOnboarding(false);
       setIsOpen(true);
     }
@@ -103,27 +92,19 @@ export function OnboardingTutorial() {
     
     if (!user) return;
 
-    // Save to localStorage first (always works)
-    const localStorageKey = `onboarding_completed_${user.id}`;
-    localStorage.setItem(localStorageKey, 'true');
-
-    // Try to save to database (optional, gracefully handle errors)
+    // Save to database
     try {
-      const { error } = await supabase
-        .from('user_settings')
+      await supabase
+        .from('dashboard_onboarding')
         .upsert({ 
           user_id: user.id, 
-          has_completed_onboarding: true
+          completed: true,
+          completed_at: new Date().toISOString()
         }, {
           onConflict: 'user_id'
         });
-
-      if (error) {
-        console.warn('Could not save onboarding status to database:', error.message);
-        // Continue anyway - localStorage is enough
-      }
     } catch (err) {
-      console.warn('Database save failed, using localStorage only');
+      console.warn('Failed to save onboarding status:', err);
     }
 
     setHasCompletedOnboarding(true);
