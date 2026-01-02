@@ -50,33 +50,50 @@ export default function HomeClient() {
       <div className="w-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600 py-3 mt-16 border-y border-emerald-400/30">
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-white font-bold text-lg">
-            🎉 Launch Special: <span className="text-emerald-100">Free for Lifetime!</span> No credit card required.
+            🎉 Launch Special: <span className="text-emerald-100">Free for Life</span> — No Credit Card Required
           </p>
         </div>
       </div>
 
       {/* Hero Section */}
-      <section className="w-full max-w-4xl mx-auto text-center pt-20 pb-16 relative z-10">
+      <section className="w-full max-w-5xl mx-auto text-center pt-20 pb-16 relative z-10">
         {/* Spotlight effect */}
         <div className="absolute left-1/2 top-0 -translate-x-1/2 blur-3xl opacity-40 pointer-events-none" style={{width:'600px',height:'400px',background:'radial-gradient(circle,rgba(120,86,255,0.5) 0%,transparent 70%)'}} />
         <h1 className="text-7xl font-extrabold text-white mb-6 tracking-tight leading-tight">
-          Track Every Click.<br />Flex Your Growth.
+          Make Progress Visible.<br />Stay in the Game.
         </h1>
-        <p className="text-2xl text-neutral-300 mb-8 font-light max-w-3xl mx-auto">
-          FirstClick is the simplest way to track user analytics and showcase your project's success. 
-          Create stunning Flex Cards, climb the leaderboard, and watch your metrics soar.
+        <p className="text-2xl text-neutral-300 mb-8 font-light max-w-3xl mx-auto leading-relaxed">
+          FirstClick turns daily clicks into a simple momentum signal so small projects can feel growth, earn recognition, and keep building — even before revenue shows up.
         </p>
-        <div className="flex justify-center gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row justify-center gap-4 mb-6">
           <Link href="/auth/sign-up" className="bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-bold px-10 py-4 rounded-xl shadow-xl text-lg transition hover:shadow-indigo-500/50 hover:scale-105">
-            Start Your Free 14-Day Trial
+            Get Started — Free for Lifetime
+          </Link>
+          <Link href="/dashboard/trending" className="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold px-10 py-4 rounded-xl shadow-xl text-lg transition hover:scale-105">
+            See Trending
           </Link>
         </div>
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <span className="px-4 py-2 bg-emerald-500/20 border border-emerald-500/30 rounded-full text-emerald-400 font-semibold text-sm">
-            ✨ Launch Offer: 14 Days Free
-          </span>
+        <p className="text-sm text-neutral-400">No credit card • No noise • Just movement</p>
+      </section>
+
+      {/* Problem Section */}
+      <section className="w-full max-w-4xl mx-auto text-center py-20 px-4">
+        <h2 className="text-5xl font-extrabold text-white mb-8 leading-tight">
+          Most projects die quietly<br />before they even get a chance.
+        </h2>
+        <div className="text-xl text-neutral-300 space-y-4 mb-8 leading-relaxed">
+          <p className="text-neutral-400">Not because they are bad — but because <span className="text-white font-semibold">progress feels invisible.</span></p>
+          
+          <p className="mt-8">You ship your project…</p>
+          <p>You check every dashboard…</p>
+          <p>You see zero revenue…</p>
+          <p className="text-red-400 font-semibold">And motivation disappears.</p>
+          
+          <p className="mt-8 text-2xl text-white font-bold">What if you could see movement every day?</p>
+          <p className="text-2xl text-white font-bold">What if even small wins felt real?</p>
+          
+          <p className="mt-8 text-emerald-400 text-3xl font-black">That's why FirstClick exists.</p>
         </div>
-        <p className="text-sm text-neutral-500">No credit card required • Cancel anytime</p>
       </section>
 
       {/* Compatible Platforms - Infinite Scroll */}
@@ -133,9 +150,12 @@ export default function HomeClient() {
       </section>
 
       {/* Flex Card Demo */}
-      <section className="w-full max-w-2xl mx-auto text-center py-20">
-        <h2 className="text-4xl font-extrabold text-white mb-4">Your Growth, Visualized</h2>
-        <p className="text-lg text-neutral-300 mb-12">Create Flex Cards to showcase your project&apos;s success</p>
+      <section className="w-full max-w-4xl mx-auto text-center py-20">
+        <h2 className="text-5xl font-extrabold text-white mb-4">Simple Momentum Signals — No Noise</h2>
+        <p className="text-xl text-neutral-300 mb-12 leading-relaxed max-w-2xl mx-auto">
+          FirstClick gives you <span className="text-emerald-400 font-bold">one simple signal</span> you actually care about:<br />
+          <span className="text-2xl text-white font-bold mt-2 inline-block">Did anything move today?</span>
+        </p>
         <div className="flex flex-col items-center gap-4 mb-8">
           {/* Glassy Flex Card demo with 3D interaction */}
           <div
@@ -181,6 +201,57 @@ export default function HomeClient() {
                 <div className="text-white/60 text-base">{new Date().toLocaleDateString()}</div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Helps Section */}
+      <section className="w-full max-w-6xl mx-auto py-24 px-4">
+        <div className="text-center mb-16">
+          <h2 className="text-5xl font-extrabold text-white mb-4">Stay Motivated. See Real Progress.</h2>
+          <p className="text-xl text-neutral-300">Progress shown = more motivation = more consistency</p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-12">
+          <div className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 border border-indigo-500/30 rounded-2xl p-8">
+            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center mb-4">
+              <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-3">For builders without revenue yet</h3>
+            <p className="text-neutral-300 text-lg">Feel movement before money arrives.</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 border border-indigo-500/30 rounded-2xl p-8">
+            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center mb-4">
+              <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-3">For solo founders & indie creators</h3>
+            <p className="text-neutral-300 text-lg">Visible progress builds confidence.</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 border border-indigo-500/30 rounded-2xl p-8">
+            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center mb-4">
+              <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-3">For Shopify stores & e-commerce</h3>
+            <p className="text-neutral-300 text-lg">Real traction deserves recognition.</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 border border-indigo-500/30 rounded-2xl p-8">
+            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center mb-4">
+              <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-3">For people building in public</h3>
+            <p className="text-neutral-300 text-lg">Share real momentum, track what matters.</p>
           </div>
         </div>
       </section>
@@ -420,10 +491,24 @@ export default function HomeClient() {
       {/* Trending Leaderboard Section */}
       <section className="w-full py-24 bg-gradient-to-b from-transparent via-indigo-950/30 to-transparent">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-5xl font-extrabold text-white mb-4">🔥 Climb the Leaderboard</h2>
-            <p className="text-xl text-neutral-300 mb-2">Compete with top projects and watch your ranking soar</p>
-            <p className="text-base text-neutral-400">Get more clicks than yesterday and claim your spot on the trending page</p>
+          <div className="text-center mb-8">
+            <h2 className="text-5xl font-extrabold text-white mb-4">Momentum, Not Vanity</h2>
+            <p className="text-xl text-neutral-300 mb-4">FirstClick&apos;s Trending Page ranks projects based on % growth, not total size.</p>
+          </div>
+
+          <div className="max-w-3xl mx-auto mb-12 space-y-4">
+            <div className="bg-gradient-to-br from-emerald-900/40 to-emerald-800/40 border border-emerald-500/30 rounded-xl p-6">
+              <p className="text-neutral-200 text-lg">✅ A 10-click project can outrank a 1,000-click project if it grew faster today.</p>
+            </div>
+            <div className="bg-gradient-to-br from-emerald-900/40 to-emerald-800/40 border border-emerald-500/30 rounded-xl p-6">
+              <p className="text-neutral-200 text-lg">✅ Projects that move get noticed.</p>
+            </div>
+            <div className="bg-gradient-to-br from-emerald-900/40 to-emerald-800/40 border border-emerald-500/30 rounded-xl p-6">
+              <p className="text-neutral-200 text-lg">✅ Small wins become visible wins.</p>
+            </div>
+            <div className="text-center mt-6">
+              <p className="text-2xl text-emerald-400 font-black">This is about rewarding effort, not follower count.</p>
+            </div>
           </div>
           
           {/* Trending Page Mockup */}
@@ -520,7 +605,7 @@ export default function HomeClient() {
             </div>
           </div>
 
-          <div className="text-center">
+          <div className="text-center mt-8">
             <Link 
               href="/dashboard/trending" 
               className="inline-block bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-bold px-10 py-4 rounded-xl shadow-xl text-lg transition hover:shadow-indigo-500/50 hover:scale-105"
@@ -531,26 +616,100 @@ export default function HomeClient() {
         </div>
       </section>
 
+      {/* Projects to Watch Section */}
+      <section className="w-full max-w-4xl mx-auto py-20 px-4">
+        <div className="text-center mb-12">
+          <h2 className="text-5xl font-extrabold text-white mb-4">See Your Next Target</h2>
+          <p className="text-xl text-neutral-300">Instead of random cards, FirstClick highlights the projects just above you.</p>
+        </div>
+
+        <div className="bg-gradient-to-br from-orange-900/40 to-red-900/40 border border-orange-500/30 rounded-2xl p-8 mb-8">
+          <div className="space-y-6">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold">✓</div>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-1">Clear benchmarking</h3>
+                <p className="text-neutral-300">A clear idea of who to benchmark against</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold">✓</div>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-1">Tangible milestones</h3>
+                <p className="text-neutral-300">A tangible next milestone to reach</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold">✓</div>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-1">Quiet comparison</h3>
+                <p className="text-neutral-300">No bullying, no spam — just private tracking</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="text-center">
+          <p className="text-2xl text-white font-bold">Grow into the next rank — one day at a time.</p>
+        </div>
+      </section>
+
+      {/* Share & Flex Section */}
+      <section className="w-full max-w-4xl mx-auto py-20 px-4">
+        <div className="text-center mb-12">
+          <h2 className="text-5xl font-extrabold text-white mb-4">Share Your Progress</h2>
+          <p className="text-xl text-neutral-300">Every growth card can be shared — clean, simple, and honest.</p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 border border-indigo-500/30 rounded-xl p-6 text-center">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">Daily momentum</h3>
+          </div>
+          <div className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 border border-indigo-500/30 rounded-xl p-6 text-center">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">Personal bests</h3>
+          </div>
+          <div className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 border border-indigo-500/30 rounded-xl p-6 text-center">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">Rank improvements</h3>
+          </div>
+        </div>
+
+        <div className="text-center">
+          <p className="text-neutral-300 text-lg">Share your journey — <span className="text-white font-bold">document your progress.</span></p>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="w-full max-w-4xl mx-auto text-center py-24">
         <div className="bg-gradient-to-br from-indigo-600/20 to-purple-600/20 border border-indigo-500/30 rounded-3xl p-16 backdrop-blur relative overflow-hidden">
-          <div className="absolute top-4 right-4 px-4 py-2 bg-emerald-500 rounded-full text-white font-bold text-sm animate-pulse">
-            14 Days Free!
+          <div className="absolute top-4 right-4 px-4 py-2 bg-emerald-500 rounded-full text-white font-bold text-sm">
+            Free for Life!
           </div>
-          <h2 className="text-5xl font-extrabold text-white mb-6">Ready to Track Your Growth?</h2>
-          <p className="text-xl text-neutral-300 mb-2">
-            Join thousands of creators showcasing their success with FirstClick
-          </p>
-          <p className="text-lg text-emerald-400 font-semibold mb-8">
-            🎉 Launch Special: Free for 14 Days
+          <h2 className="text-5xl font-extrabold text-white mb-6">Ready to Stop Feeling Stuck?</h2>
+          <p className="text-xl text-neutral-300 mb-8">
+            See your daily momentum instead of dashboards you don&apos;t understand.
           </p>
           <Link 
             href="/auth/sign-up" 
             className="inline-block bg-white text-black font-bold px-12 py-5 rounded-xl shadow-xl text-xl transition hover:bg-neutral-100 hover:scale-105"
           >
-            Start Your Free Trial
+            Get Started — Free for Lifetime
           </Link>
-          <p className="text-sm text-neutral-400 mt-6">No credit card required • Takes less than 2 minutes</p>
+          <p className="text-sm text-neutral-400 mt-6">No credit card • No noise • Just movement</p>
         </div>
       </section>
 
