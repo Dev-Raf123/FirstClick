@@ -117,6 +117,7 @@ export default function TrendingProjectsPage() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(0);
   const [, forceUpdate] = useState({});
+  const [userHasProjects, setUserHasProjects] = useState(false);
 
   // Update timer every 5 seconds instead of every second for better performance
   useEffect(() => {
@@ -157,6 +158,7 @@ export default function TrendingProjectsPage() {
       if (user) {
         setUserEmail(user.email || null);
         setCurrentUserId(user.id);
+        setUserHasProjects(projects?.some(project => project.user_id === user.id) || false);
         
         // Check onboarding status
         const { data: onboardingData } = await supabase
@@ -426,7 +428,16 @@ export default function TrendingProjectsPage() {
       <div className="max-w-[1600px] mx-auto pause-animations">
         
         {/* User's Rank Display */}
-        {currentUserId && trending.some(p => p.user_id === currentUserId) && (() => {
+        {currentUserId && !userHasProjects && (
+          <div className="mb-12">
+            <div className="bg-neutral-900/60 border border-neutral-800 rounded-2xl p-6 text-center">
+              <p className="text-neutral-200 text-lg">
+                Dont see your project here? Create a project in <Link href="/dashboard" className="text-indigo-400 hover:text-indigo-300 font-semibold">Dashboard</Link>
+              </p>
+            </div>
+          </div>
+        )}
+        {currentUserId && userHasProjects && trending.some(p => p.user_id === currentUserId) && (() => {
           
           const userRankIndex = trending.findIndex(p => p.user_id === currentUserId);
           const userProject = trending.find(p => p.user_id === currentUserId);
