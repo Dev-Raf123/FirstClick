@@ -117,8 +117,8 @@ export default function HomeClient() {
               <Link href="/auth/sign-up" className="bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-bold px-10 py-4 rounded-xl shadow-xl text-lg transition hover:shadow-indigo-500/50 hover:scale-105">
                 Get Started — Free for Lifetime
               </Link>
-              <Link href="/dashboard/trending" className="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-light px-10 py-4 rounded-xl shadow-xl text-base tracking-wide transition hover:scale-105 whitespace-nowrap">
-                Trending Projects
+              <Link href="/dashboard/trending" className="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold px-10 py-2 rounded-xl shadow-lg text-lg transition hover:scale-105 whitespace-nowrap inline-flex items-center justify-center text-center">
+                View Trending
               </Link>
             </div>
           </div>
