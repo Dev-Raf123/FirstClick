@@ -60,18 +60,68 @@ export default function HomeClient() {
         {/* Spotlight effect */}
         <div className="absolute left-1/2 top-0 -translate-x-1/2 blur-3xl opacity-40 pointer-events-none" style={{width:'600px',height:'400px',background:'radial-gradient(circle,rgba(120,86,255,0.5) 0%,transparent 70%)'}} />
         <h1 className="text-7xl font-extrabold text-white mb-6 tracking-tight leading-tight">
-          Make Progress Visible.<br />Stay in the Game.
+          Turn Your Clicks Into Growth. That.<br />People Notice.
         </h1>
-        <p className="text-2xl text-neutral-300 mb-8 font-light max-w-3xl mx-auto leading-relaxed">
-          FirstClick turns daily clicks into a simple momentum signal so small projects can feel growth, earn recognition, and keep building — even before revenue shows up.
-        </p>
-        <div className="flex flex-col sm:flex-row justify-center gap-4 mb-6">
-          <Link href="/auth/sign-up" className="bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-bold px-10 py-4 rounded-xl shadow-xl text-lg transition hover:shadow-indigo-500/50 hover:scale-105">
-            Get Started — Free for Lifetime
-          </Link>
-          <Link href="/dashboard/trending" className="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold px-10 py-4 rounded-xl shadow-xl text-lg transition hover:scale-105">
-            See Trending
-          </Link>
+        <div className="mt-6 flex flex-col lg:flex-row items-center lg:items-start gap-10 mb-10">
+          {/* Glassy Flex Card demo with 3D interaction */}
+          <div
+            ref={cardRef}
+            className="relative rounded-3xl p-8 aspect-[3/4] overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 w-full max-w-md mx-auto shadow-2xl flex flex-col border border-white/10 backdrop-blur-xl cursor-grab select-none"
+            style={{
+              transform: `perspective(900px) rotateX(${cardTransform.rotateX}deg) rotateY(${cardTransform.rotateY}deg) scale(${cardTransform.scale})`,
+              transition: dragging ? "none" : "transform 0.3s cubic-bezier(.25,.8,.25,1)",
+              boxShadow: dragging ? "0 20px 60px 0 rgba(120,86,255,0.25), 0 2px 8px 0 rgba(0,0,0,0.25)" : "0 8px 32px 0 rgba(120,86,255,0.15), 0 2px 8px 0 rgba(0,0,0,0.15)"
+            }}
+            onPointerDown={handlePointerDown}
+            onPointerUp={handlePointerUp}
+            onPointerLeave={handlePointerUp}
+            onPointerMove={handlePointerMove}
+          >
+            <div className="absolute inset-0 opacity-10 pointer-events-none">
+              <div className="absolute inset-0" style={{backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px'}} />
+            </div>
+            <div className="relative z-10 h-full flex flex-col">
+              <div className="flex items-center justify-between mb-6">
+                <div className="bg-white/20 px-4 py-2 rounded-full">
+                  <span className="text-base font-bold text-white">FLEX CARD</span>
+                </div>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff200" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-300"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/></svg>
+              </div>
+              <h2 className="mb-6 text-4xl font-extrabold text-white text-center">Your Project</h2>
+              <div className="bg-white/10 rounded-xl p-6 mb-6 flex flex-col items-center">
+                <div className="text-5xl font-black text-green-300 mb-2 leading-none">+569%</div>
+                <div className="text-lg text-white/80">Growth Rate</div>
+              </div>
+              <div className="grid grid-cols-2 gap-6 mb-6">
+                <div className="bg-white/10 rounded-xl p-6 flex flex-col items-center">
+                  <div className="text-3xl font-bold text-white">194</div>
+                  <div className="text-base text-white/70 mt-2">Today</div>
+                </div>
+                <div className="bg-white/10 rounded-xl p-6 flex flex-col items-center">
+                  <div className="text-3xl font-bold text-white">29</div>
+                  <div className="text-base text-white/70 mt-2">Yesterday</div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-auto pt-2">
+                <div className="text-white/60 text-base">Powered by FirstClick</div>
+                <div className="text-white/60 text-base">{new Date().toLocaleDateString()}</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center lg:text-left max-w-xl lg:mt-32">
+            <p className="text-2xl text-neutral-300 mb-8 font-light leading-relaxed">
+              FirstClick turns daily clicks into a simple momentum signal so small projects can feel growth, earn recognition, and keep building — even before revenue shows up.
+            </p>
+            <div className="flex flex-col sm:flex-row lg:justify-start justify-center gap-4 mb-6">
+              <Link href="/auth/sign-up" className="bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-bold px-10 py-4 rounded-xl shadow-xl text-lg transition hover:shadow-indigo-500/50 hover:scale-105">
+                Get Started — Free for Lifetime
+              </Link>
+              <Link href="/dashboard/trending" className="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-light px-10 py-4 rounded-xl shadow-xl text-base tracking-wide transition hover:scale-105 whitespace-nowrap">
+                Trending Projects
+              </Link>
+            </div>
+          </div>
         </div>
         <p className="text-sm text-neutral-400">No credit card • No noise • Just movement</p>
       </section>
@@ -152,57 +202,10 @@ export default function HomeClient() {
       {/* Flex Card Demo */}
       <section className="w-full max-w-4xl mx-auto text-center py-20">
         <h2 className="text-5xl font-extrabold text-white mb-4">Simple Momentum Signals — No Noise</h2>
-        <p className="text-xl text-neutral-300 mb-12 leading-relaxed max-w-2xl mx-auto">
+        <p className="text-xl text-neutral-300 leading-relaxed max-w-2xl mx-auto">
           FirstClick gives you <span className="text-emerald-400 font-bold">one simple signal</span> you actually care about:<br />
           <span className="text-2xl text-white font-bold mt-2 inline-block">Did anything move today?</span>
         </p>
-        <div className="flex flex-col items-center gap-4 mb-8">
-          {/* Glassy Flex Card demo with 3D interaction */}
-          <div
-            ref={cardRef}
-            className="relative rounded-3xl p-8 aspect-[3/4] overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 w-full max-w-md mx-auto shadow-2xl flex flex-col border border-white/10 backdrop-blur-xl cursor-grab select-none"
-            style={{
-              transform: `perspective(900px) rotateX(${cardTransform.rotateX}deg) rotateY(${cardTransform.rotateY}deg) scale(${cardTransform.scale})`,
-              transition: dragging ? "none" : "transform 0.3s cubic-bezier(.25,.8,.25,1)",
-              boxShadow: dragging ? "0 20px 60px 0 rgba(120,86,255,0.25), 0 2px 8px 0 rgba(0,0,0,0.25)" : "0 8px 32px 0 rgba(120,86,255,0.15), 0 2px 8px 0 rgba(0,0,0,0.15)"
-            }}
-            onPointerDown={handlePointerDown}
-            onPointerUp={handlePointerUp}
-            onPointerLeave={handlePointerUp}
-            onPointerMove={handlePointerMove}
-          >
-            <div className="absolute inset-0 opacity-10 pointer-events-none">
-              <div className="absolute inset-0" style={{backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px'}} />
-            </div>
-            <div className="relative z-10 h-full flex flex-col">
-              <div className="flex items-center justify-between mb-6">
-                <div className="bg-white/20 px-4 py-2 rounded-full">
-                  <span className="text-base font-bold text-white">FLEX CARD</span>
-                </div>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff200" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-300"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/></svg>
-              </div>
-              <h2 className="mb-6 text-4xl font-extrabold text-white text-center">Your Project</h2>
-              <div className="bg-white/10 rounded-xl p-6 mb-6 flex flex-col items-center">
-                <div className="text-5xl font-black text-green-300 mb-2 leading-none">+569%</div>
-                <div className="text-lg text-white/80">Growth Rate</div>
-              </div>
-              <div className="grid grid-cols-2 gap-6 mb-6">
-                <div className="bg-white/10 rounded-xl p-6 flex flex-col items-center">
-                  <div className="text-3xl font-bold text-white">194</div>
-                  <div className="text-base text-white/70 mt-2">Today</div>
-                </div>
-                <div className="bg-white/10 rounded-xl p-6 flex flex-col items-center">
-                  <div className="text-3xl font-bold text-white">29</div>
-                  <div className="text-base text-white/70 mt-2">Yesterday</div>
-                </div>
-              </div>
-              <div className="flex items-center justify-between mt-auto pt-2">
-                <div className="text-white/60 text-base">Powered by FirstClick</div>
-                <div className="text-white/60 text-base">{new Date().toLocaleDateString()}</div>
-              </div>
-            </div>
-          </div>
-        </div>
       </section>
 
       {/* How It Helps Section */}
