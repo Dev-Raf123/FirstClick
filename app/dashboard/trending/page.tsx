@@ -300,6 +300,39 @@ export default function TrendingProjectsPage() {
         });
 
       setTrending(filteredData);
+
+      if (user?.id) {
+        const payload = filteredData.map((project) => ({
+          project_id: project.id,
+          name: project.name,
+          description: project.description,
+          url: project.url,
+          percent: project.percent,
+          clicks_today: project.clicksToday,
+          clicks_prev: project.clicksPrev,
+          background_url: project.background_url,
+          background_position: project.background_position,
+          background_size: project.background_size,
+          background_repeat: project.background_repeat,
+          equipped_design_id: project.equippedDesignId,
+          text_color: project.text_color
+        }));
+
+        try {
+          const res = await fetch("/api/update-readonly-trending", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ items: payload })
+          });
+
+          if (!res.ok) {
+            const errorBody = await res.json().catch(() => ({}));
+            console.error("Failed to update read_only_trending", res.status, errorBody);
+          }
+        } catch (error) {
+          console.error("Failed to update read_only_trending", error);
+        }
+      }
       
       // Check if user has won any active challenges
       if (user?.id) {

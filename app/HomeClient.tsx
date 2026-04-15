@@ -1,10 +1,15 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MousePointer2 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { ImageCard } from "@/components/ImageCard";
 
 export default function HomeClient() {
+  const [publicTrending, setPublicTrending] = useState<any[]>([]);
+  const [publicTrendingLoading, setPublicTrendingLoading] = useState(true);
+
   // 3D card interaction state
   const cardRef = useRef(null);
   const [cardTransform, setCardTransform] = useState({ rotateX: 0, rotateY: 0, scale: 1 });
@@ -33,6 +38,34 @@ export default function HomeClient() {
     setCardTransform({ rotateX, rotateY, scale: 1.04 });
   };
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchPublicTrending = async () => {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from("read_only_trending")
+        .select("project_id, name, description, url, percent, clicks_today, clicks_prev, background_url, background_position, background_size, background_repeat, text_color")
+        .gt("percent", 0)
+        .order("percent", { ascending: false })
+        .order("clicks_today", { ascending: false })
+        .limit(10);
+
+      if (isMounted) {
+        setPublicTrending(data || []);
+        setPublicTrendingLoading(false);
+      }
+    };
+
+    fetchPublicTrending();
+    const interval = setInterval(fetchPublicTrending, 30000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#18181B] via-[#1A1333] to-black flex flex-col items-center px-4 relative overflow-hidden">
       <header className="fixed top-0 left-0 w-full z-20 bg-black/80 border-b border-neutral-900 backdrop-blur flex items-center justify-between px-8 py-4">
@@ -55,8 +88,57 @@ export default function HomeClient() {
         </div>
       </div>
 
+      {/* Trending Showcase */}
+      <section className="w-full max-w-6xl mx-auto pt-10 pb-16 relative z-10">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <p className="text-sm text-neutral-400 uppercase tracking-widest">Trending projects right now</p>
+            <h2 className="text-4xl font-extrabold text-white">Live Momentum Board</h2>
+            <p className="text-sm text-neutral-400 mt-2">Updated by real-time click activity</p>
+          </div>
+          <Link href="/dashboard/trending" className="text-sm text-indigo-300 hover:text-indigo-200 font-semibold">
+            View all
+          </Link>
+        </div>
+
+        {publicTrendingLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {Array.from({ length: 8 }).map((_, idx) => (
+              <div key={idx} className="aspect-[3/4] rounded-3xl bg-white/5 border border-white/10 animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {publicTrending.map((proj) => {
+              const customBg = proj.background_url ? {
+                url: proj.background_url,
+                position: proj.background_position || "center",
+                size: proj.background_size || "cover",
+                repeat: proj.background_repeat || "no-repeat"
+              } : undefined;
+
+              return (
+                <ImageCard
+                  key={proj.project_id}
+                  image="/664b6af1e2428aed06246af0c6581efb.jpg"
+                  name={proj.name}
+                  description={proj.description}
+                  percent={Number(proj.percent || 0)}
+                  clicksToday={proj.clicks_today || 0}
+                  clicksPrev={proj.clicks_prev || 0}
+                  date={new Date().toLocaleDateString()}
+                  url={proj.url}
+                  customBackground={customBg}
+                  textColor={proj.text_color || "white"}
+                />
+              );
+            })}
+          </div>
+        )}
+      </section>
+
       {/* Hero Section */}
-      <section className="w-full max-w-5xl mx-auto text-center pt-20 pb-16 relative z-10">
+      <section className="w-full max-w-5xl mx-auto text-center pt-8 pb-16 relative z-10">
         {/* Spotlight effect */}
         <div className="absolute left-1/2 top-0 -translate-x-1/2 blur-3xl opacity-40 pointer-events-none" style={{width:'600px',height:'400px',background:'radial-gradient(circle,rgba(120,86,255,0.5) 0%,transparent 70%)'}} />
         <h1 className="text-7xl font-extrabold text-white mb-6 tracking-tight leading-tight">
